@@ -1,0 +1,5 @@
+package com.Cafe.model;
+
+public class Customer {
+
+}

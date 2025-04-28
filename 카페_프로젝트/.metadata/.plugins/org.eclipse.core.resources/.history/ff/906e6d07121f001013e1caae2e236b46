@@ -1,0 +1,121 @@
+package com.Cafe.Controller;
+
+import java.util.List;
+import java.util.Scanner;
+
+import com.Cafe.dao.CoffeeBeansDAO;
+import com.Cafe.model.COFFEE_BEANS;
+
+public class CoffeeBeansController {
+    private final CoffeeBeansDAO dao = new CoffeeBeansDAO();
+    private final Scanner sc = new Scanner(System.in);
+
+    public void run() {
+        while (true) {
+            System.out.println("\n=== 커피 원두 관리 ===");
+            System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+            System.out.print("선택: ");
+            String input = sc.nextLine();
+            int menu;
+            try {
+                menu = Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.");
+                continue;
+            }
+            switch (menu) {
+                case 1 -> listAll();
+                case 2 -> addBean();
+                case 3 -> editBean();
+                case 4 -> removeBean();
+                case 0 -> { return; }
+                default -> System.out.println("⚠️ 잘못된 선택입니다.");
+            }
+        }
+    }
+
+    private void listAll() {
+        List<COFFEE_BEANS> list = dao.getAllCoffeeBeans();
+        if (list.isEmpty()) {
+            System.out.println("등록된 원두가 없습니다.");
+        } else {
+            list.forEach(System.out::println);
+        }
+    }
+
+    private void addBean() {
+        try {
+            System.out.print("ID: ");
+            int id = Integer.parseInt(sc.nextLine());
+            System.out.print("이름: ");
+            String name = sc.nextLine();
+            System.out.print("로스팅: ");
+            String roasting = sc.nextLine();
+            System.out.print("풍미: ");
+            String flavorNotes = sc.nextLine();
+            System.out.print("특징: ");
+            String characteristics = sc.nextLine();
+            System.out.print("가격대: ");
+            String priceRange = sc.nextLine();
+            System.out.print("추천 로스터리: ");
+            String recommendedRoasteries = sc.nextLine();
+
+            COFFEE_BEANS bean = new COFFEE_BEANS(id, name, roasting, flavorNotes, characteristics, priceRange, recommendedRoasteries);
+            dao.insertCoffeeBean(bean);
+            System.out.println("✅ 등록되었습니다.");
+        } catch (Exception e) {
+            System.out.println("❌ 등록 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    private void editBean() {
+        try {
+            System.out.print("수정할 ID: ");
+            int id = Integer.parseInt(sc.nextLine());
+            COFFEE_BEANS bean = dao.getCoffeeBeanById(id);
+            if (bean == null) {
+                System.out.println("⚠️ 해당 ID가 존재하지 않습니다.");
+                return;
+            }
+            System.out.print("새 이름 (현재: " + bean.getName() + "): ");
+            String name = sc.nextLine();
+            if (!name.isBlank()) bean.setName(name);
+
+            System.out.print("새 로스팅 (현재: " + bean.getRoasting() + "): ");
+            String roasting = sc.nextLine();
+            if (!roasting.isBlank()) bean.setRoasting(roasting);
+
+            System.out.print("새 풍미 (현재: " + bean.getFlavorNotes() + "): ");
+            String flavorNotes = sc.nextLine();
+            if (!flavorNotes.isBlank()) bean.setFlavorNotes(flavorNotes);
+
+            System.out.print("새 특징 (현재: " + bean.getCharacteristics() + "): ");
+            String characteristics = sc.nextLine();
+            if (!characteristics.isBlank()) bean.setCharacteristics(characteristics);
+
+            System.out.print("새 가격대 (현재: " + bean.getPriceRange() + "): ");
+            String priceRange = sc.nextLine();
+            if (!priceRange.isBlank()) bean.setPriceRange(priceRange);
+
+            System.out.print("새 추천 로스터리 (현재: " + bean.getRecommendedRoasteries() + "): ");
+            String recommendedRoasteries = sc.nextLine();
+            if (!recommendedRoasteries.isBlank()) bean.setRecommendedRoasteries(recommendedRoasteries);
+
+            dao.updateCoffeeBean(bean);
+            System.out.println("✅ 수정되었습니다.");
+        } catch (Exception e) {
+            System.out.println("❌ 수정 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    private void removeBean() {
+        try {
+            System.out.print("삭제할 ID: ");
+            int id = Integer.parseInt(sc.nextLine());
+            dao.deleteCoffeeBean(id);
+            System.out.println("✅ 삭제되었습니다.");
+        } catch (Exception e) {
+            System.out.println("❌ 삭제 중 오류 발생: " + e.getMessage());
+        }
+    }
+}

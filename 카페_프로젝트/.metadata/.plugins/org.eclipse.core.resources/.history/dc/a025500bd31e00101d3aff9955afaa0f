@@ -1,0 +1,310 @@
+package com.Cafe.app;
+
+import java.sql.Date;
+import java.util.List;
+import java.util.Scanner;
+
+import com.Cafe.Controller.MainController;
+import com.Cafe.model.COFFEE_BEANS;
+import com.Cafe.model.CUSTOMER;
+import com.Cafe.model.CUSTOMER.Customer;
+import com.Cafe.model.DELIVERY;
+import com.Cafe.model.ORDERS;
+import com.Cafe.model.PRODUCT;
+
+public class CafeApp {
+    private final Scanner scanner = new Scanner(System.in);
+    private final MainController controller = new MainController();
+
+    public static void main(String[] args) {
+        new CafeApp().run();
+    }
+
+    public void run() {
+        boolean running = true;
+        while (running) {
+            printMainMenu();
+            int choice = readInt("선택: ");
+            switch (choice) {
+                case 1: customersMenu(); break;
+                case 2: productsMenu(); break;
+                case 3: beansMenu(); break;
+                case 4: ordersMenu(); break;
+                case 5: deliveryMenu(); break;
+                case 0:
+                    running = false;
+                    System.out.println("프로그램을 종료합니다.");
+                    break;
+                default:
+                    System.out.println("잘못된 선택입니다. 다시 시도해주세요.");
+            }
+        }
+        scanner.close();
+    }
+
+    private void printMainMenu() {
+        System.out.println("\n=== 카페 관리 시스템 ===");
+        System.out.println("1. 고객 관리");
+        System.out.println("2. 제품 관리");
+        System.out.println("3. 원두 관리");
+        System.out.println("4. 주문 관리");
+        System.out.println("5. 배송 관리");
+        System.out.println("0. 종료");
+    }
+
+    private void customersMenu() {
+        System.out.println("\n--- 고객 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 수정");
+        System.out.println("4. 삭제");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                controller.getAllCustomers().forEach(System.out::println);
+                break;
+            case 2:
+                int cid = readInt("고객 ID: ");
+                String name = readString("이름: ");
+                String phone = readString("전화번호: ");
+                String email = readString("이메일: ");
+                String address = readString("주소: ");
+                String signup = readString("가입일 (YYYY-MM-DD): ");
+                System.out.println(controller.addCustomer(new CUSTOMER().new Customer(cid, name, phone, email, address, signup))
+                        ? "고객 추가 완료" : "고객 추가 실패");
+                break;
+            case 3:
+                int ucid = readInt("수정할 고객 ID: ");
+                String uName = readString("새 이름: ");
+                String uPhone = readString("새 전화번호: ");
+                String uEmail = readString("새 이메일: ");
+                String uAddr = readString("새 주소: ");
+                String uSignup = readString("새 가입일 (YYYY-MM-DD): ");
+                System.out.println(controller.updateCustomer(new CUSTOMER().new Customer(ucid, uName, uPhone, uEmail, uAddr, uSignup))
+                        ? "고객 수정 완료" : "고객 수정 실패");
+                break;
+            case 4:
+                int dcid = readInt("삭제할 고객 ID: ");
+                System.out.println(controller.deleteCustomer(dcid)
+                        ? "고객 삭제 완료" : "고객 삭제 실패");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }
+
+    private void productsMenu() {
+        System.out.println("\n--- 제품 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 수정");
+        System.out.println("4. 삭제");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                controller.getAllProducts().forEach(System.out::println);
+                break;
+            case 2:
+                int pid = readInt("제품 ID: ");
+                String type = readString("종류: ");
+                String comp = readString("제조사: ");
+                String pname = readString("제품명: ");
+                String desc = readString("설명: ");
+                String main = readString("주요 음료: ");
+                System.out.println(controller.addProduct(new PRODUCT(pid, type, comp, pname, desc, main))
+                        ? "제품 추가 완료" : "제품 추가 실패");
+                break;
+            case 3:
+                int upid = readInt("수정할 제품 ID: ");
+                String uType = readString("새 종류: ");
+                String uComp = readString("새 제조사: ");
+                String uName = readString("새 제품명: ");
+                String uDesc = readString("새 설명: ");
+                String uMain = readString("새 주요 음료: ");
+                System.out.println(controller.updateProduct(new PRODUCT(upid, uType, uComp, uName, uDesc, uMain))
+                        ? "제품 수정 완료" : "제품 수정 실패");
+                break;
+            case 4:
+                int dpid = readInt("삭제할 제품 ID: ");
+                System.out.println(controller.deleteProduct(dpid)
+                        ? "제품 삭제 완료" : "제품 삭제 실패");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }
+
+    private void beansMenu() {
+        System.out.println("\n--- 원두 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 수정");
+        System.out.println("4. 삭제");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                controller.getAllCoffeeBeans().forEach(System.out::println);
+                break;
+            case 2:
+                int bid = readInt("원두 ID: ");
+                String bname = readString("이름: ");
+                String roast = readString("로스팅: ");
+                String notes = readString("노트: ");
+                String chars = readString("특징: ");
+                String prange = readString("가격대: ");
+                String recs = readString("추천 로스터리: ");
+                System.out.println(controller.addCoffeeBean(new COFFEE_BEANS(bid, bname, roast, notes, chars, prange, recs))
+                        ? "원두 추가 완료" : "원두 추가 실패");
+                break;
+            case 3:
+                int ubid = readInt("수정할 원두 ID: ");
+                String ubname = readString("새 이름: ");
+                String uroast = readString("새 로스팅: ");
+                String unotes = readString("새 노트: ");
+                String uchars = readString("새 특징: ");
+                String uprange = readString("새 가격대: ");
+                String urecs = readString("새 추천 로스터리: ");
+                System.out.println(controller.updateCoffeeBean(new COFFEE_BEANS(ubid, ubname, uroast, unotes, uchars, uprange, urecs))
+                        ? "원두 수정 완료" : "원두 수정 실패");
+                break;
+            case 4:
+                int dbid = readInt("삭제할 원두 ID: ");
+                System.out.println(controller.deleteCoffeeBean(dbid)
+                        ? "원두 삭제 완료" : "원두 삭제 실패");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }
+
+    private void ordersMenu() {
+        System.out.println("\n--- 주문 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 수정");
+        System.out.println("4. 삭제");
+        System.out.println("5. 상태 업데이트");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                controller.getAllOrders().forEach(System.out::println);
+                break;
+            case 2:
+                int oid = readInt("주문 ID: ");
+                int cid2 = readInt("고객 ID: ");
+                System.out.println("1. 원두 주문  2. 제품 주문");
+                int type2 = readInt("선택: ");
+                Integer obean = null, oprod = null;
+                if (type2 == 1) obean = readInt("원두 ID: ");
+                else oprod = readInt("제품 ID: ");
+                int qty = readInt("수량: ");
+                Date odate = readDate("주문일 (YYYY-MM-DD): ");
+                String ostatus = readString("상태: ");
+                System.out.println(controller.addOrder(new ORDERS(oid, cid2, obean, oprod, qty, odate, ostatus))
+                        ? "주문 추가 완료" : "주문 추가 실패");
+                break;
+            case 3:
+                int uoid = readInt("수정할 주문 ID: ");
+                Integer ubean = null, uprod = null;
+                System.out.println("1. 원두 수정  2. 제품 수정");
+                int ut = readInt("선택: ");
+                if (ut == 1) ubean = readInt("새 원두 ID: ");
+                else uprod = readInt("새 제품 ID: ");
+                int uqty = readInt("새 수량: ");
+                String ust = readString("새 상태: ");
+                controller.updateOrder(new ORDERS(uoid, 0, ubean, uprod, uqty, null, ust));
+                System.out.println("주문 수정 완료");
+                break;
+            case 4:
+                int doid = readInt("삭제할 주문 ID: ");
+                System.out.println(controller.deleteOrder(doid)
+                        ? "주문 삭제 완료" : "주문 삭제 실패");
+                break;
+            case 5:
+                int soid = readInt("상태 업데이트할 주문 ID: ");
+                String sst = readString("새 상태: ");
+                System.out.println(controller.updateOrderStatus(soid, sst)
+                        ? "주문 상태 업데이트 완료" : "주문 상태 업데이트 실패");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }
+
+    private void deliveryMenu() {
+        System.out.println("\n--- 배송 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 수정");
+        System.out.println("4. 삭제");
+        System.out.println("5. 상태 업데이트");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                controller.getAllDeliveries().forEach(System.out::println);
+                break;
+            case 2:
+                int did = readInt("배송 ID: ");
+                int ordId = readInt("주문 ID: ");
+                String courier = readString("택배사: ");
+                Date exp = readDate("예상 배송일 (YYYY-MM-DD): ");
+                String dstatus = readString("초기 상태: ");
+                System.out.println(controller.addDelivery(new DELIVERY(did, ordId, courier, exp, null, dstatus))
+                        ? "배송 추가 완료" : "배송 추가 실패");
+                break;
+            case 3:
+                int udid = readInt("수정할 배송 ID: ");
+                String ucourier = readString("새 택배사: ");
+                Date uexp = readDate("새 예상 배송일 (YYYY-MM-DD): ");
+                String ustatus = readString("새 배송 상태: ");
+                controller.updateDelivery(new DELIVERY(udid, 0, ucourier, uexp, null, ustatus));
+                System.out.println("배송 수정 완료");
+                break;
+            case 4:
+                int ddid = readInt("삭제할 배송 ID: ");
+                System.out.println(controller.deleteDelivery(ddid)
+                        ? "배송 삭제 완료" : "배송 삭제 실패");
+                break;
+            case 5:
+                int sdid = readInt("상태 업데이트할 배송 ID: ");
+                String sstatus = readString("새 배송 상태: ");
+                System.out.println(controller.updateDeliveryStatus(sdid, sstatus)
+                        ? "배송 상태 업데이트 완료" : "배송 상태 업데이트 실패");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }
+
+    // 입력 헬퍼
+    private int readInt(String prompt) {
+        System.out.print(prompt);
+        return Integer.parseInt(scanner.nextLine());
+    }
+
+    private String readString(String prompt) {
+        System.out.print(prompt);
+        return scanner.nextLine();
+    }
+
+    private Date readDate(String prompt) {
+        System.out.print(prompt);
+        String input = scanner.nextLine().trim();
+        return input.isEmpty() ? null : Date.valueOf(input);
+    }
+}

@@ -1,0 +1,106 @@
+package com.Cafe.dao;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.Cafe.model.Customer;
+
+public class CustomerDAO {
+
+    private final String url = "jdbc:oracle:thin:@localhost:1521:xe";  // Oracle DB 연결 URL
+    private final String user = "C##Cafe_Website";  // DB 사용자명
+    private final String password = "1234";  // DB 비밀번호
+
+    // DB 연결 생성
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(url, user, password);
+    }
+
+    // 모든 고객 정보 조회
+    public List<Customer> getAllCustomers() {
+        List<Customer> customerList = new ArrayList<>();
+        String sql = "SELECT customer_id, name, phone, email, address, signup_date FROM CUSTOMER";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                int customerId = rs.getInt("customer_id");
+                String name = rs.getString("name");
+                String phone = rs.getString("phone");
+                String email = rs.getString("email");
+                String address = rs.getString("address");
+                Date sqlDate = rs.getDate("signup_date");
+                String signupDate = (sqlDate != null) ? sqlDate.toString() : null; // DATE → String 변환
+
+                Customer customer = new Customer(customerId, name, phone, email, address, signupDate);
+                customerList.add(customer);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return customerList;
+    }
+
+    // 고객 등록
+    public boolean addCustomer(Customer customer) {
+        String sql = "INSERT INTO CUSTOMER (name, phone, email, address, signup_date) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, customer.getName());
+            pstmt.setString(2, customer.getPhone());
+            pstmt.setString(3, customer.getEmail());
+            pstmt.setString(4, customer.getAddress());
+            pstmt.setString(5, customer.getSignupDate());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // 고객 정보 수정
+    public boolean updateCustomer(Customer customer) {
+        String sql = "UPDATE CUSTOMER SET name = ?, phone = ?, email = ?, address = ? WHERE customer_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, customer.getName());
+            pstmt.setString(2, customer.getPhone());
+            pstmt.setString(3, customer.getEmail());
+            pstmt.setString(4, customer.getAddress());
+            pstmt.setInt(5, customer.getCustomerId());
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // 고객 삭제
+    public boolean deleteCustomer(int customerId) {
+        String sql = "DELETE FROM CUSTOMER WHERE customer_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, customerId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+}

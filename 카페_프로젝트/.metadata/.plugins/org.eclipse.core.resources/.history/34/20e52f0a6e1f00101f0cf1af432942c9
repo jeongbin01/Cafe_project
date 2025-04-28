@@ -1,0 +1,115 @@
+package com.Cafe.Controller;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import com.Cafe.dao.CustomerDAO;
+import com.Cafe.model.Customer;
+
+public class CustomerController {
+	private final CustomerDAO customerDAO;
+
+	public CustomerController() {
+		this.customerDAO = new CustomerDAO();
+	}
+
+	/**
+	 * 모든 고객 조회
+	 */
+	public List<Customer> getAllCustomers() {
+		return customerDAO.getAllCustomers();
+	}
+
+	/**
+	 * ID로 고객 조회
+	 */
+	public Customer getCustomerById(int id) {
+		return customerDAO.getCustomerById(id);
+	}
+
+	/**
+	 * 신규 고객 추가
+	 */
+	public boolean addCustomer(Customer customer) {
+		// 필수 정보 검증
+		if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+			return false;
+		}
+		if (customer.getEmail() == null || !isValidEmail(customer.getEmail())) {
+			return false;
+		}
+		if (customer.getPhone() == null || !isValidPhone(customer.getPhone())) {
+			return false;
+		}
+		// signupDate 자동 설정
+		if (customer.getSignupDate() == null || !isValidDate(customer.getSignupDate())) {
+			customer.setSignupDate(LocalDate.now().toString());
+		}
+		// 중복 ID 체크
+		if (customerDAO.getCustomerById(customer.getCustomerId()) != null) {
+			return false;
+		}
+		return customerDAO.insertCustomer(customer);
+	}
+
+	/**
+	 * 기존 고객 정보 수정
+	 */
+	public boolean updateCustomer(Customer customer) {
+		// 필수 정보 검증
+		if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+			return false;
+		}
+		if (customer.getEmail() == null || !isValidEmail(customer.getEmail())) {
+			return false;
+		}
+		if (customer.getPhone() == null || !isValidPhone(customer.getPhone())) {
+			return false;
+		}
+		if (customer.getSignupDate() == null || !isValidDate(customer.getSignupDate())) {
+			return false;
+		}
+		// 존재 여부 체크
+		if (customerDAO.getCustomerById(customer.getCustomerId()) == null) {
+			return false;
+		}
+		return customerDAO.updateCustomer(customer);
+	}
+
+	/**
+	 * 고객 삭제
+	 */
+	public boolean deleteCustomer(int id) {
+		if (customerDAO.getCustomerById(id) == null) {
+			return false;
+		}
+		return customerDAO.deleteCustomer(id);
+	}
+
+	/**
+	 * 이름으로 고객 검색
+	 */
+	public List<Customer> searchCustomersByName(String keyword) {
+		return customerDAO.getAllCustomers().stream()
+				.filter(c -> c.getName().toLowerCase().contains(keyword.toLowerCase())).toList();
+	}
+
+	// 이메일 형식 검증
+	private boolean isValidEmail(String email) {
+		String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+		return Pattern.matches(regex, email);
+	}
+
+	// 전화번호 형식 검증 (010-1234-5678)
+	private boolean isValidPhone(String phone) {
+		String regex = "^\\d{2,3}-\\d{3,4}-\\d{4}$";
+		return Pattern.matches(regex, phone);
+	}
+
+	// 날짜 형식 검증 (YYYY-MM-DD)
+	private boolean isValidDate(String date) {
+		String regex = "^\\d{4}-\\d{2}-\\d{2}$";
+		return Pattern.matches(regex, date);
+	}
+}

@@ -1,0 +1,82 @@
+package com.Cafe.Controller;
+
+import java.sql.Date;
+import java.util.List;
+import java.util.Scanner;
+
+import com.Cafe.dao.OrdersDAO;
+import com.Cafe.model.ORDERS;
+
+public class CustomerController {
+	private final OrdersDAO dao = new OrdersDAO();
+	private final Scanner sc = new Scanner(System.in);
+
+	public void run() {
+		while (true) {
+			System.out.println("고객 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			System.out.print("선택: ");
+			int menu = Integer.parseInt(sc.nextLine());
+			switch (menu) {
+			case 1 -> listAll();
+			case 2 -> addOrder();
+			case 3 -> editOrder();
+			case 4 -> removeOrder();
+			case 0 -> {
+				return;
+			}
+			default -> System.out.println("잘못된 선택입니다.");
+			}
+		}
+	}
+
+	private void listAll() {
+		List<ORDERS> list = dao.getAllOrders();
+		list.forEach(System.out::println);
+	}
+
+	private void addOrder() {
+		System.out.print("주문 ID: ");
+		int id = Integer.parseInt(sc.nextLine());
+		System.out.print("고객 ID: ");
+		int customerId = Integer.parseInt(sc.nextLine());
+		System.out.print("원두 ID: ");
+		int beanId = Integer.parseInt(sc.nextLine());
+		System.out.print("제품 ID: ");
+		int productId = Integer.parseInt(sc.nextLine());
+		System.out.print("수량: ");
+		int quantity = Integer.parseInt(sc.nextLine());
+		System.out.print("주문 날짜 (YYYY-MM-DD): ");
+		Date orderDate = Date.valueOf(sc.nextLine());
+		System.out.print("상태: ");
+		String status = sc.nextLine();
+
+		ORDERS order = new ORDERS(id, customerId, beanId, productId, quantity, orderDate, status);
+		dao.insertOrder(order);
+		System.out.println("등록되었습니다.");
+	}
+
+	private void editOrder() {
+		System.out.print("수정할 주문 ID: ");
+		int id = Integer.parseInt(sc.nextLine());
+		ORDERS order = dao.getOrderById(id);
+		if (order == null) {
+			System.out.println("해당 주문이 존재하지 않습니다.");
+			return;
+		}
+		System.out.print("새 상태 (현재: " + order.getStatus() + "): ");
+		String status = sc.nextLine();
+		if (!status.isEmpty())
+			order.setStatus(status);
+		// 필요한 다른 필드도 동일하게 처리
+		dao.updateOrder(order);
+		System.out.println("수정되었습니다.");
+	}
+
+	private void removeOrder() {
+		System.out.print("삭제할 주문 ID: ");
+		int id = Integer.parseInt(sc.nextLine());
+		dao.deleteOrder(id);
+		System.out.println("삭제되었습니다.");
+	}
+}

@@ -1,0 +1,79 @@
+package com.Cafe.Controller;
+
+import java.util.List;
+import java.util.Scanner;
+import com.Cafe.dao.OrdersDAO;
+import com.Cafe.model.Orders;
+
+public class OrdersController {
+
+	private final OrdersDAO dao = new OrdersDAO();
+	private final Scanner sc = new Scanner(System.in);
+
+	public void run() {
+		while (true) {
+			System.out.println("\n=== 주문 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			System.out.print("선택: ");
+			int menu = sc.nextInt();
+			sc.nextLine();
+
+			switch (menu) {
+			case 1 -> showAllOrders();
+			case 2 -> addOrder();
+			case 3 -> updateOrder();
+			case 4 -> deleteOrder();
+			case 0 -> {
+				return;
+			}
+			default -> System.out.println("잘못된 선택입니다.");
+			}
+		}
+	}
+
+	private void showAllOrders() {
+		List<Orders> orders = dao.getAllOrders();
+		for (Orders order : orders) {
+			System.out.println(order);
+		}
+	}
+
+	private void addOrder() {
+		System.out.print("주문 ID: ");
+		int orderId = sc.nextInt();
+		System.out.print("고객 ID: ");
+		int customerId = sc.nextInt();
+		System.out.print("원두 ID (없으면 0): ");
+		int beanId = sc.nextInt();
+		System.out.print("제품 ID (없으면 0): ");
+		int productId = sc.nextInt();
+		System.out.print("수량: ");
+		int quantity = sc.nextInt();
+		sc.nextLine();
+		System.out.print("주문일 (YYYY-MM-DD): ");
+		String orderDate = sc.nextLine();
+		System.out.print("주문 상태: ");
+		String status = sc.nextLine();
+
+		Orders order = new Orders(orderId, customerId, beanId, productId, quantity, java.sql.Date.valueOf(orderDate),
+				status);
+		dao.insertOrder(order);
+	}
+
+	private void updateOrder() {
+		System.out.print("수정할 주문 ID: ");
+		int orderId = sc.nextInt();
+		sc.nextLine();
+		System.out.print("새 주문 상태: ");
+		String status = sc.nextLine();
+
+		Orders order = new Orders(orderId, 0, null, null, 0, null, status);
+		dao.updateOrderStatus(orderId, status);
+	}
+
+	private void deleteOrder() {
+		System.out.print("삭제할 주문 ID: ");
+		int orderId = sc.nextInt();
+		dao.deleteOrder(orderId);
+	}
+}

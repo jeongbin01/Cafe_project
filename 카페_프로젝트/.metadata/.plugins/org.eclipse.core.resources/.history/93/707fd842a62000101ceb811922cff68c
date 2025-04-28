@@ -1,0 +1,77 @@
+package com.Cafe.Controller;
+
+import java.util.List;
+import java.util.Scanner;
+import com.Cafe.dao.DeliveryDAO;
+import com.Cafe.model.Delvery;
+
+public class DeliveryController {
+
+	private final DeliveryDAO dao = new DeliveryDAO();
+	private final Scanner sc = new Scanner(System.in);
+
+	// 배송 관리 몌뉴
+	public void run() {
+		while (true) {
+			System.out.println("\n=== 배송 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			System.out.print("선택: ");
+			int menu = sc.nextInt();
+			sc.nextLine();
+
+			switch (menu) {
+			case 1 -> showAllDeliveries();
+			case 2 -> addDelivery();
+			case 3 -> updateDelivery();
+			case 4 -> deleteDelivery();
+			case 0 -> {
+				return;
+			}
+			default -> System.out.println("잘못된 선택입니다.");
+			}
+		}
+	}
+
+	private void showAllDeliveries() {
+		List<Delvery> deliveries = dao.getAllDeliveries();
+		for (Delvery delivery : deliveries) {
+			System.out.println(delivery);
+		}
+	}
+
+	private void addDelivery() {
+		System.out.print("배송 ID: ");
+		int deliveryId = sc.nextInt();
+		System.out.print("주문 ID: ");
+		int orderId = sc.nextInt();
+		sc.nextLine();
+		System.out.print("택배 회사: ");
+		String courierCompany = sc.nextLine();
+		System.out.print("예상 배송일 (YYYY-MM-DD): ");
+		String expectedDate = sc.nextLine();
+		System.out.print("실제 배송일 (YYYY-MM-DD): ");
+		String actualDate = sc.nextLine();
+		System.out.print("배송 상태: ");
+		String deliveryStatus = sc.nextLine();
+
+		Delvery delivery = new Delvery(deliveryId, orderId, courierCompany, java.sql.Date.valueOf(expectedDate),
+				java.sql.Date.valueOf(actualDate), deliveryStatus);
+		dao.insertDelivery(delivery);
+	}
+
+	private void updateDelivery() {
+		System.out.print("수정할 배송 ID: ");
+		int deliveryId = sc.nextInt();
+		sc.nextLine();
+		System.out.print("새 배송 상태: ");
+		String deliveryStatus = sc.nextLine();
+
+		dao.updateDeliveryStatus(deliveryId, deliveryStatus);
+	}
+
+	private void deleteDelivery() {
+		System.out.print("삭제할 배송 ID: ");
+		int deliveryId = sc.nextInt();
+		dao.deleteDelivery(deliveryId);
+	}
+}

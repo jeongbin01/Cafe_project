@@ -1,0 +1,727 @@
+package com.Cafe.app;
+
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Scanner;
+
+import com.Cafe.Controller.CoffeeBeansController;
+import com.Cafe.Controller.CustomerController;
+import com.Cafe.Controller.DeliveryController;
+import com.Cafe.Controller.OrdersController;
+import com.Cafe.Controller.ProductController;
+import com.Cafe.model.COFFEE_BEANS;
+import com.Cafe.model.CUSTOMER;
+import com.Cafe.model.ORDERS;
+import com.Cafe.model.PRODUCT;
+import com.Cafe.model.DELIVERY;
+
+public class CafeApp {
+	private Scanner scanner;
+	private CoffeeBeansController coffeeBeansController;
+	private CustomerController customerController;
+	private ProductController productController;
+	private OrdersController ordersController;
+	private DeliveryController deliveryController;
+
+	/**
+	 * 애플리케이션 생성자 - 컨트롤러 초기화
+	 */
+	public CafeApp() {
+		scanner = new Scanner(System.in);
+		coffeeBeansController = new CoffeeBeansController();
+		customerController = new CustomerController();
+		productController = new ProductController();
+		ordersController = new OrdersController();
+		deliveryController = new DeliveryController();
+	}
+
+	/**
+	 * 애플리케이션 시작 메소드
+	 */
+	public void start() {
+		System.out.println("===== 카페 관리 시스템을 시작합니다 =====");
+		boolean running = true;
+
+		while (running) {
+			displayMainMenu();
+			int choice = getUserChoice();
+
+			switch (choice) {
+			case 1:
+				handleCoffeeBeansMenu();
+				break;
+			case 2:
+				handleCustomerMenu();
+				break;
+			case 3:
+				handleProductMenu();
+				break;
+			case 4:
+				handleOrdersMenu();
+				break;
+			case 5:
+				handleDeliveryMenu();
+				break;
+			case 0:
+				running = false;
+				System.out.println("프로그램을 종료합니다. 이용해 주셔서 감사합니다.");
+				break;
+			default:
+				System.out.println("잘못된 선택입니다. 다시 시도해주세요.");
+			}
+		}
+		scanner.close();
+	}
+
+	private void displayMainMenu() {
+		System.out.println("\n===== 메인 메뉴 =====");
+		System.out.println("1. 커피 원두 관리");
+		System.out.println("2. 고객 관리");
+		System.out.println("3. 제품 관리");
+		System.out.println("4. 주문 관리");
+		System.out.println("5. 배송 관리");
+		System.out.println("0. 종료");
+		System.out.print("메뉴를 선택하세요: ");
+	}
+
+	private int getUserChoice() {
+		try {
+			return Integer.parseInt(scanner.nextLine());
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+
+	// 커피 원두 관리
+	private void handleCoffeeBeansMenu() {
+		boolean subMenu = true;
+		while (subMenu) {
+			System.out.println("\n===== 커피 원두 관리 =====");
+			System.out.println("1. 모든 커피 원두 조회");
+			System.out.println("2. 커피 원두 검색");
+			System.out.println("3. 커피 원두 추가");
+			System.out.println("4. 커피 원두 정보 수정");
+			System.out.println("5. 커피 원두 삭제");
+			System.out.println("0. 메인 메뉴로 돌아가기");
+			System.out.print("메뉴를 선택하세요: ");
+			int choice = getUserChoice();
+			switch (choice) {
+			case 1:
+				displayAllCoffeeBeans();
+				break;
+			case 2:
+				searchCoffeeBeans();
+				break;
+			case 3:
+				addCoffeeBean();
+				break;
+			case 4:
+				updateCoffeeBean();
+				break;
+			case 5:
+				deleteCoffeeBean();
+				break;
+			case 0:
+				subMenu = false;
+				break;
+			default:
+				System.out.println("잘못된 선택입니다. 다시 시도해주세요.");
+			}
+		}
+	}
+
+	private void displayAllCoffeeBeans() {
+		List<COFFEE_BEANS> beansList = coffeeBeansController.getAllCoffeeBeans();
+		if (beansList.isEmpty()) {
+			System.out.println("등록된 커피 원두가 없습니다.");
+		} else {
+			System.out.println("\n===== 커피 원두 목록 =====");
+			beansList.forEach(bean -> {
+				System.out.println(bean);
+				System.out.println("-------------------------");
+			});
+			System.out.println("총 " + beansList.size() + "개의 커피 원두가 있습니다.");
+		}
+	}
+
+	private void searchCoffeeBeans() {
+		System.out.print("검색할 커피 원두 이름: ");
+		String name = scanner.nextLine();
+		List<COFFEE_BEANS> beansList = coffeeBeansController.searchCoffeeBeansByName(name);
+		if (beansList.isEmpty()) {
+			System.out.println("검색 결과가 없습니다.");
+		} else {
+			System.out.println("\n===== 검색 결과 =====");
+			beansList.forEach(bean -> {
+				System.out.println(bean);
+				System.out.println("-------------------------");
+			});
+			System.out.println("총 " + beansList.size() + "개의 결과가 있습니다.");
+		}
+	}
+
+	private void addCoffeeBean() {
+		System.out.println("\n===== 커피 원두 추가 =====");
+		System.out.print("원두 이름: ");
+		String name = scanner.nextLine();
+		System.out.print("로스팅 정도: ");
+		String roasting = scanner.nextLine();
+		System.out.print("풍미 노트: ");
+		String flavorNotes = scanner.nextLine();
+		System.out.print("특성: ");
+		String characteristics = scanner.nextLine();
+		System.out.print("가격 범위: ");
+		String priceRange = scanner.nextLine();
+		System.out.print("추천 로스터리: ");
+		String recommended = scanner.nextLine();
+		COFFEE_BEANS bean = new COFFEE_BEANS(0, name, roasting, flavorNotes, characteristics, priceRange, recommended);
+		System.out.println(coffeeBeansController.addCoffeeBean(bean) ? "커피 원두가 성공적으로 추가되었습니다." : "커피 원두 추가에 실패했습니다.");
+	}
+
+	private void updateCoffeeBean() {
+		System.out.print("수정할 커피 원두의 ID: ");
+		int id = getUserChoice();
+		COFFEE_BEANS existing = coffeeBeansController.getCoffeeBeanById(id);
+		if (existing == null) {
+			System.out.println("해당 ID의 커피 원두가 존재하지 않습니다.");
+			return;
+		}
+		System.out.println("\n===== 커피 원두 정보 수정 =====");
+		System.out.println("현재 정보: " + existing);
+		System.out.println("수정할 정보를 입력하세요 (변경하지 않으려면 엔터):");
+		System.out.print("원두 이름(" + existing.getName() + "): ");
+		String name = scanner.nextLine();
+		System.out.print("로스팅 정도(" + existing.getRoasting() + "): ");
+		String roasting = scanner.nextLine();
+		System.out.print("풍미 노트(" + existing.getFlavorNotes() + "): ");
+		String flavorNotes = scanner.nextLine();
+		System.out.print("특성(" + existing.getCharacteristics() + "): ");
+		String characteristics = scanner.nextLine();
+		System.out.print("가격 범위(" + existing.getPriceRange() + "): ");
+		String priceRange = scanner.nextLine();
+		System.out.print("추천 로스터리(" + existing.getRecommendedRoasteries() + "): ");
+		String recommended = scanner.nextLine();
+		COFFEE_BEANS updated = new COFFEE_BEANS(id, name.isEmpty() ? existing.getName() : name,
+				roasting.isEmpty() ? existing.getRoasting() : roasting,
+				flavorNotes.isEmpty() ? existing.getFlavorNotes() : flavorNotes,
+				characteristics.isEmpty() ? existing.getCharacteristics() : characteristics,
+				priceRange.isEmpty() ? existing.getPriceRange() : priceRange,
+				recommended.isEmpty() ? existing.getRecommendedRoasteries() : recommended);
+		System.out.println(
+				coffeeBeansController.updateCoffeeBean(updated) ? "커피 원두 정보가 성공적으로 수정되었습니다." : "커피 원두 정보 수정에 실패했습니다.");
+	}
+
+	private void deleteCoffeeBean() {
+		System.out.print("삭제할 커피 원두의 ID: ");
+		int id = getUserChoice();
+		COFFEE_BEANS bean = coffeeBeansController.getCoffeeBeanById(id);
+		if (bean == null) {
+			System.out.println("해당 ID의 커피 원두가 존재하지 않습니다.");
+			return;
+		}
+		System.out.println("삭제할 커피 원두: " + bean);
+		System.out.print("정말로 삭제하시겠습니까? (Y/N): ");
+		String confirm = scanner.nextLine();
+		if (confirm.equalsIgnoreCase("Y")) {
+			System.out.println(
+					coffeeBeansController.deleteCoffeeBean(id) ? "커피 원두가 성공적으로 삭제되었습니다." : "커피 원두 삭제에 실패했습니다.");
+		} else {
+			System.out.println("삭제가 취소되었습니다.");
+		}
+	}
+
+	// 고객 관리
+	private void handleCustomerMenu() {
+		boolean subMenu = true;
+		while (subMenu) {
+			System.out.println("\n===== 고객 관리 =====");
+			System.out.println("1. 모든 고객 조회");
+			System.out.println("2. 고객 검색");
+			System.out.println("3. 고객 등록");
+			System.out.println("4. 고객 정보 수정");
+			System.out.println("5. 고객 삭제");
+			System.out.println("0. 메인 메뉴로 돌아가기");
+			System.out.print("메뉴를 선택하세요: ");
+			int choice = getUserChoice();
+			switch (choice) {
+			case 1:
+				displayAllCustomers();
+				break;
+			case 2:
+				searchCustomer();
+				break;
+			case 3:
+				addCustomer();
+				break;
+			case 4:
+				updateCustomer();
+				break;
+			case 5:
+				deleteCustomer();
+				break;
+			case 0:
+				subMenu = false;
+				break;
+			default:
+				System.out.println("잘못된 선택입니다. 다시 시도해주세요.");
+			}
+		}
+	}
+
+	private void displayAllCustomers() {
+		List<CUSTOMER.Customer> list = customerController.getAllCustomers();
+		if (list.isEmpty()) {
+			System.out.println("등록된 고객이 없습니다.");
+		} else {
+			System.out.println("\n===== 고객 목록 =====");
+			list.forEach(c -> {
+				System.out.println(c);
+				System.out.println("-------------------------");
+			});
+			System.out.println("총 " + list.size() + "명의 고객이 있습니다.");
+		}
+	}
+
+	private void searchCustomer() {
+		System.out.print("검색할 고객 이름: ");
+		String name = scanner.nextLine();
+		List<CUSTOMER.Customer> list = customerController.searchCustomersByName(name);
+		if (list.isEmpty()) {
+			System.out.println("검색 결과가 없습니다.");
+		} else {
+			System.out.println("\n===== 검색 결과 =====");
+			list.forEach(c -> {
+				System.out.println(c);
+				System.out.println("-------------------------");
+			});
+			System.out.println("총 " + list.size() + "명의 결과가 있습니다.");
+		}
+	}
+
+	private void addCustomer() {
+		System.out.println("\n===== 고객 등록 =====");
+		System.out.print("고객 이름: ");
+		String name = scanner.nextLine();
+		System.out.print("전화번호: ");
+		String phone = scanner.nextLine();
+		System.out.print("이메일: ");
+		String email = scanner.nextLine();
+		System.out.print("주소: ");
+		String address = scanner.nextLine();
+		String signupDate = new SimpleDateFormat("yyyy-MM-dd").format(new java.util.Date());
+		CUSTOMER.Customer cust = new CUSTOMER().new Customer(0, name, phone, email, address, signupDate);
+		System.out.println(customerController.addCustomer(cust) ? "고객이 성공적으로 등록되었습니다." : "고객 등록에 실패했습니다.");
+	}
+
+	private void updateCustomer() {
+		System.out.print("수정할 고객의 ID: ");
+		int id = getUserChoice();
+		CUSTOMER.Customer existing = customerController.getCustomerById(id);
+		if (existing == null) {
+			System.out.println("해당 ID의 고객이 존재하지 않습니다.");
+			return;
+		}
+		System.out.println("\n===== 고객 정보 수정 =====");
+		System.out.println("현재 정보: " + existing);
+		System.out.println("수정할 정보를 입력하세요 (변경하지 않으려면 엔터):");
+		System.out.print("고객 이름(" + existing.getName() + "): ");
+		String name = scanner.nextLine();
+		System.out.print("전화번호(" + existing.getPhone() + "): ");
+		String phone = scanner.nextLine();
+		System.out.print("이메일(" + existing.getEmail() + "): ");
+		String email = scanner.nextLine();
+		System.out.print("주소(" + existing.getAddress() + "): ");
+		String address = scanner.nextLine();
+		CUSTOMER.Customer updatedCust = new CUSTOMER().new Customer(id, name.isEmpty() ? existing.getName() : name,
+				phone.isEmpty() ? existing.getPhone() : phone, email.isEmpty() ? existing.getEmail() : email,
+				address.isEmpty() ? existing.getAddress() : address, existing.getSignupDate());
+		System.out.println(
+				customerController.updateCustomer(updatedCust) ? "고객 정보가 성공적으로 수정되었습니다." : "고객 정보 수정에 실패했습니다.");
+	}
+
+	private void deleteCustomer() {
+		System.out.print("삭제할 고객의 ID: ");
+		int id = getUserChoice();
+		CUSTOMER.Customer cust = customerController.getCustomerById(id);
+		if (cust == null) {
+			System.out.println("해당 ID의 고객이 존재하지 않습니다.");
+			return;
+		}
+		System.out.println("삭제할 고객: " + cust);
+		System.out.print("정말로 삭제하시겠습니까? (Y/N): ");
+		String confirm = scanner.nextLine();
+		if (confirm.equalsIgnoreCase("Y")) {
+			System.out.println(customerController.deleteCustomer(id) ? "고객이 성공적으로 삭제되었습니다." : "고객 삭제에 실패했습니다.");
+		} else {
+			System.out.println("삭제가 취소되었습니다.");
+		}
+	}
+
+	// 제품 관리
+	private void handleProductMenu() {
+		boolean subMenu = true;
+		while (subMenu) {
+			System.out.println("\n===== 제품 관리 =====");
+			System.out.println("1. 모든 제품 조회");
+			System.out.println("2. 제품 검색");
+			System.out.println("3. 제품 등록");
+			System.out.println("4. 제품 정보 수정");
+			System.out.println("5. 제품 삭제");
+			System.out.println("0. 메인 메뉴로 돌아가기");
+			System.out.print("메뉴를 선택하세요: ");
+			int choice = getUserChoice();
+			switch (choice) {
+			case 1:
+				displayAllProducts();
+				break;
+			case 2:
+				searchProduct();
+				break;
+			case 3:
+				addProduct();
+				break;
+			case 4:
+				updateProduct();
+				break;
+			case 5:
+				deleteProduct();
+				break;
+			case 0:
+				subMenu = false;
+				break;
+			default:
+				System.out.println("잘못된 선택입니다. 다시 시도해주세요.");
+			}
+		}
+	}
+
+	private void displayAllProducts() {
+		List<PRODUCT> list = productController.getAllProducts();
+		if (list.isEmpty()) {
+			System.out.println("등록된 제품이 없습니다.");
+		} else {
+			System.out.println("\n===== 제품 목록 =====");
+			list.forEach(p -> {
+				System.out.println(p);
+				System.out.println("-------------------------");
+			});
+			System.out.println("총 " + list.size() + "개의 제품이 있습니다.");
+		}
+	}
+
+	private void searchProduct() {
+		System.out.println("\n===== 제품 검색 =====");
+		System.out.println("1. 이름으로 검색");
+		System.out.println("2. 타입으로 검색");
+		System.out.println("3. 회사로 검색");
+		System.out.print("검색 방법을 선택하세요: ");
+		int type = getUserChoice();
+		List<PRODUCT> list = null;
+		switch (type) {
+		case 1:
+			System.out.print("검색할 제품 이름: ");
+			list = productController.searchProductsByName(scanner.nextLine());
+			break;
+		case 2:
+			System.out.print("검색할 제품 타입: ");
+			list = productController.getProductsByType(scanner.nextLine());
+			break;
+		case 3:
+			System.out.print("검색할 회사 이름: ");
+			list = productController.searchProductsByCompany(scanner.nextLine());
+			break;
+		default:
+			System.out.println("잘못된 선택입니다.");
+			return;
+		}
+		if (list.isEmpty()) {
+			System.out.println("검색 결과가 없습니다.");
+		} else {
+			System.out.println("\n===== 검색 결과 =====");
+			list.forEach(p -> {
+				System.out.println(p);
+				System.out.println("-------------------------");
+			});
+			System.out.println("총 " + list.size() + "개의 결과가 있습니다.");
+		}
+	}
+
+	private void addProduct() {
+		System.out.println("\n===== 제품 등록 =====");
+		System.out.print("제품 타입: ");
+		String type = scanner.nextLine();
+		System.out.print("제조사: ");
+		String company = scanner.nextLine();
+		System.out.print("제품명: ");
+		String name = scanner.nextLine();
+		System.out.print("제품 설명: ");
+		String desc = scanner.nextLine();
+		System.out.print("주요 음료: ");
+		String mainDrinks = scanner.nextLine();
+		PRODUCT p = new PRODUCT(0, type, company, name, desc, mainDrinks);
+		System.out.println(productController.addProduct(p) ? "제품이 성공적으로 등록되었습니다." : "제품 등록에 실패했습니다.");
+	}
+
+	private void updateProduct() {
+		System.out.print("수정할 제품의 ID: ");
+		int id = getUserChoice();
+		PRODUCT existing = productController.getProductById(id);
+		if (existing == null) {
+			System.out.println("해당 ID의 제품이 존재하지 않습니다.");
+			return;
+		}
+		System.out.println("\n===== 제품 정보 수정 =====");
+		System.out.println("현재 정보: " + existing);
+		System.out.println("수정할 정보를 입력하세요 (변경하지 않으려면 엔터):");
+		System.out.print("제품 타입(" + existing.getProductType() + "): ");
+		String type = scanner.nextLine();
+		System.out.print("제조사(" + existing.getCompany() + "): ");
+		String company = scanner.nextLine();
+		System.out.print("제품명(" + existing.getProductName() + "): ");
+		String name = scanner.nextLine();
+		System.out.print("제품 설명(" + existing.getDescription() + "): ");
+		String desc = scanner.nextLine();
+		System.out.print("주요 음료(" + existing.getMainDrinks() + "): ");
+		String main = scanner.nextLine();
+		PRODUCT updated = new PRODUCT(id, type.isEmpty() ? existing.getProductType() : type,
+				company.isEmpty() ? existing.getCompany() : company, name.isEmpty() ? existing.getProductName() : name,
+				desc.isEmpty() ? existing.getDescription() : desc, main.isEmpty() ? existing.getMainDrinks() : main);
+		System.out.println(productController.updateProduct(updated) ? "제품 정보가 성공적으로 수정되었습니다." : "제품 정보 수정에 실패했습니다.");
+	}
+
+	private void deleteProduct() {
+		System.out.print("삭제할 제품의 ID: ");
+		int id = getUserChoice();
+		PRODUCT p = productController.getProductById(id);
+		if (p == null) {
+			System.out.println("해당 ID의 제품이 존재하지 않습니다.");
+			return;
+		}
+		System.out.println("삭제할 제품: " + p);
+		System.out.print("정말로 삭제하시겠습니까? (Y/N): ");
+		String confirm = scanner.nextLine();
+		if (confirm.equalsIgnoreCase("Y")) {
+			System.out.println(productController.deleteProduct(id) ? "제품이 성공적으로 삭제되었습니다." : "제품 삭제에 실패했습니다.");
+		} else {
+			System.out.println("삭제가 취소되었습니다.");
+		}
+	}
+
+	// 주문 관리
+	private void handleOrdersMenu() {
+		boolean subMenu = true;
+		while (subMenu) {
+			System.out.println("\n===== 주문 관리 =====");
+			System.out.println("1. 모든 주문 조회");
+			System.out.println("2. 주문 검색");
+			System.out.println("3. 새 주문 등록");
+			System.out.println("4. 주문 상태 수정");
+			System.out.println("5. 주문 취소");
+			System.out.println("0. 메인 메뉴로 돌아가기");
+			System.out.print("메뉴를 선택하세요: ");
+			int choice = getUserChoice();
+			switch (choice) {
+			case 1:
+				displayAllOrders();
+				break;
+			case 2:
+				searchOrder();
+				break;
+			case 3:
+				addOrder();
+				break;
+			case 4:
+				updateOrderStatus();
+				break;
+			case 5:
+				cancelOrder();
+				break;
+			case 0:
+				subMenu = false;
+				break;
+			default:
+				System.out.println("잘못된 선택입니다. 다시 시도해주세요.");
+			}
+		}
+	}
+
+	private void displayAllOrders() {
+		List<ORDERS> list = ordersController.getAllOrders();
+		if (list.isEmpty()) {
+			System.out.println("등록된 주문이 없습니다.");
+		} else {
+			System.out.println("\n===== 주문 목록 =====");
+			list.forEach(o -> {
+				System.out.println(o);
+				System.out.println("-------------------------");
+			});
+			System.out.println("총 " + list.size() + "개의 주문이 있습니다.");
+		}
+	}
+
+	private void searchDelivery() {
+		System.out.println("\n===== 배송 정보 검색 =====");
+		System.out.println("1. 주문 ID로 검색");
+		System.out.println("2. 배송 상태로 검색");
+		System.out.println("3. 운송장 번호로 검색");
+		System.out.print("검색 방법을 선택하세요: ");
+		int type = getUserChoice();
+		List<DELIVERY> list;
+		switch (type) {
+		case 1:
+			System.out.print("검색할 주문 ID: ");
+			list = deliveryController.searchDeliveryByOrderId(getUserChoice());
+			break;
+		case 2:
+			System.out.print("검색할 배송 상태: ");
+			list = deliveryController.searchDeliveryByStatus(scanner.nextLine());
+			break;
+		case 3:
+			System.out.print("검색할 운송장 번호: ");
+			String tracking = scanner.nextLine();
+			DELIVERY d = deliveryController.getDeliveryByTrackingNumber(tracking);
+			list = new java.util.ArrayList<>();
+			if (d != null)
+				list.add(d);
+			break;
+		default:
+			System.out.println("잘못된 선택입니다.");
+			return;
+		}
+		if (list.isEmpty()) {
+			System.out.println("검색 결과가 없습니다.");
+		} else {
+			System.out.println("\n===== 검색 결과 =====");
+			list.forEach(dl -> {
+				System.out.println(dl);
+				System.out.println("-------------------------");
+			});
+			System.out.println("총 " + list.size() + "개의 결과가 있습니다.");
+		}
+	}
+
+	/**
+	 * 배송 정보 추가
+	 */
+	private void addDelivery() {
+		System.out.println("\n===== 배송 정보 추가 =====");
+		List<ORDERS> completed = ordersController.searchOrdersByStatus("완료");
+		List<ORDERS> pending = completed.stream()
+				.filter(o -> deliveryController.searchDeliveryByOrderId(o.getId()).isEmpty())
+				.collect(Collectors.toList());
+
+		if (pending.isEmpty()) {
+			System.out.println("배송 정보를 추가할 주문이 없습니다.");
+			return;
+		}
+
+		System.out.println("\n===== 배송 가능한 주문 =====");
+		pending.forEach(o -> System.out.println(o.getId() + ": 고객 " + o.getCustomerId() + ", 상품 " + o.getProductId()));
+		System.out.print("추가할 주문 ID: ");
+		int orderId = getUserChoice();
+		ORDERS sel = pending.stream().filter(o -> o.getId() == orderId).findFirst().orElse(null);
+		if (sel == null) {
+			System.out.println("유효하지 않은 주문 ID입니다.");
+			return;
+		}
+
+		System.out.print("예상 도착일(YYYY-MM-DD): ");
+		Date eta;
+		try {
+			eta = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(scanner.nextLine()).getTime());
+		} catch (Exception e) {
+			eta = new Date(System.currentTimeMillis() + 3L * 24 * 60 * 60 * 1000);
+			System.out.println("잘못된 형식으로, 3일 후로 설정합니다: " + eta);
+		}
+
+		System.out.print("배송 상태(1: 준비, 2: 배송중, 3: 완료): ");
+		String status;
+		switch (getUserChoice()) {
+		case 2:
+			status = "배송 중";
+			break;
+		case 3:
+			status = "배송 완료";
+			break;
+		default:
+			status = "배송 준비 중";
+		}
+
+		String addr = customerController.getCustomerById(sel.getCustomerId()).getAddress();
+		System.out.print("배송 주소(" + addr + "): ");
+		String inputAddr = scanner.nextLine();
+		if (!inputAddr.isEmpty())
+			addr = inputAddr;
+
+		String track = "TRK" + (System.currentTimeMillis() % 10000);
+		DELIVERY newD = new DELIVERY(0, orderId, new Date(System.currentTimeMillis()), eta, status, addr, track);
+
+		if (deliveryController.addDelivery(newD)) {
+			System.out.println("배송 정보가 추가되었습니다. 운송장: " + track);
+		} else {
+			System.out.println("배송 정보 추가에 실패했습니다.");
+		}
+	}
+
+	/**
+	 * 배송 상태 업데이트
+	 */
+	private void updateDeliveryStatus() {
+		System.out.print("수정할 배송 ID: ");
+		int id = getUserChoice();
+		DELIVERY exist = deliveryController.getDeliveryById(id);
+		if (exist == null) {
+			System.out.println("해당 배송 정보가 없습니다.");
+			return;
+		}
+
+		System.out.println("현재 상태: " + exist.getDeliveryStatus());
+		System.out.println("1: 준비, 2: 배송중, 3: 완료");
+		System.out.print("새 상태 선택: ");
+		String newStatus;
+		switch (getUserChoice()) {
+		case 2:
+			newStatus = "배송 중";
+			break;
+		case 3:
+			newStatus = "배송 완료";
+			break;
+		default:
+			newStatus = "배송 준비 중";
+		}
+
+		DELIVERY updated = new DELIVERY(exist.getId(), exist.getOrderId(), exist.getShipDate(),
+				exist.getEstimatedArrival(), newStatus, exist.getDeliveryAddress(), exist.getTrackingNumber());
+		if (deliveryController.updateDelivery(updated)) {
+			System.out.println("배송 상태가 업데이트되었습니다.");
+		} else {
+			System.out.println("업데이트에 실패했습니다.");
+		}
+	}
+
+	/**
+     * 배송 정보 삭제
+     */
+    private void deleteDelivery() {
+        System.out.print("삭제할 배송 ID: ");
+        int id = getUserChoice();
+        DELIVERY exist = deliveryController.getDeliveryById(id);
+        if (exist == null) {
+            System.out.println("해당 배송 정보가 없습니다.");
+            return;
+        }
+
+        System.out.print("정말 삭제하시겠습니까? (Y/N): ");
+        if (scanner.nextLine().equalsIgnoreCase("Y")) {
+            if (deliveryController.deleteDelivery(id)) {
+                System.out.println("삭제 성공");
+            } else {
+                System.out.println("삭제 실패");
+            }
+        } else {
+            System.out.println("취소되었습니다.");
+        }
+    }
+}

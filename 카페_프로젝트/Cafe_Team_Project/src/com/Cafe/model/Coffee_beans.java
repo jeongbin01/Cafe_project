@@ -1,0 +1,89 @@
+package com.Cafe.model;
+
+public class Coffee_beans {
+	private int id;
+    private String name;
+    private String roasting;
+    private String flavorNotes;
+    private String characteristics;
+    private String priceRange;
+    private String recommendedRoasteries;
+	
+    // 생성자
+    public Coffee_beans(int id, String name, String roasting, String flavorNotes, String characteristics,
+			String priceRange, String recommendedRoasteries) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.roasting = roasting;
+		this.flavorNotes = flavorNotes;
+		this.characteristics = characteristics;
+		this.priceRange = priceRange;
+		this.recommendedRoasteries = recommendedRoasteries;
+	}
+
+    // getter, setter, toString
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getRoasting() {
+		return roasting;
+	}
+
+	public void setRoasting(String roasting) {
+		this.roasting = roasting;
+	}
+
+	public String getFlavorNotes() {
+		return flavorNotes;
+	}
+
+	public void setFlavorNotes(String flavorNotes) {
+		this.flavorNotes = flavorNotes;
+	}
+
+	public String getCharacteristics() {
+		return characteristics;
+	}
+
+	public void setCharacteristics(String characteristics) {
+		this.characteristics = characteristics;
+	}
+
+	public String getPriceRange() {
+		return priceRange;
+	}
+
+	public void setPriceRange(String priceRange) {
+		this.priceRange = priceRange;
+	}
+
+	public String getRecommendedRoasteries() {
+		return recommendedRoasteries;
+	}
+
+	public void setRecommendedRoasteries(String recommendedRoasteries) {
+		this.recommendedRoasteries = recommendedRoasteries;
+	}
+
+	@Override
+	public String toString() {
+		return "COFFEE_BEANS [id=" + id + ", name=" + name + ", roasting=" + roasting + ", flavorNotes=" + flavorNotes
+				+ ", characteristics=" + characteristics + ", priceRange=" + priceRange + ", recommendedRoasteries="
+				+ recommendedRoasteries + "]";
+	}
+    
+}

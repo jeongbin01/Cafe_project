@@ -1,0 +1,74 @@
+package com.Cafe.app;
+
+import java.util.Scanner;
+
+import com.Cafe.Controller.CoffeeBeansController;
+import com.Cafe.Controller.CustomerController;
+import com.Cafe.Controller.DeliveryController;
+import com.Cafe.Controller.OrdersController;
+import com.Cafe.Controller.ProductController;
+
+public class CafeApp {
+	
+	private static final Scanner scanner = new Scanner(System.in);
+	private static final CustomerController customerController = new CustomerController();
+	private static final OrdersController ordersController = new OrdersController();
+	private static final CoffeeBeansController coffeeBeansController = new CoffeeBeansController();
+	private static final ProductController productController = new ProductController();
+	private static final DeliveryController deliveryController = new DeliveryController();
+
+	public static void main(String[] args) {
+		boolean running = true;
+		while (running) {
+			printMainMenu();
+			int choice = readInt("메뉴 선택 ▶ ");
+
+			switch (choice) {
+			case 1:
+				customerController.run(); // 고객 관리
+				break;
+			case 2:
+				ordersController.run(); // 주문 관리
+				break;
+			case 3:
+				coffeeBeansController.run(); // 원두 관리
+				break;
+			case 4:
+				productController.run(); // 제품 관리 (시럽/티백/스무디 베이스)
+				break;
+			case 5:
+				deliveryController.run(); // 배송 관리
+				break;
+			case 0:
+				System.out.println("\n💡 프로그램을 종료합니다. 감사합니다!");
+				running = false;
+				break;
+			default:
+				System.out.println("❗️ 올바른 메뉴 번호를 입력해주세요.");
+			}
+		}
+		scanner.close();
+	}
+
+	private static void printMainMenu() {
+		System.out.println("\n===== 카페 관리 시스템 =====");
+		System.out.println("1. 고객 관리");
+		System.out.println("2. 주문 관리");
+		System.out.println("3. 원두 관리");
+		System.out.println("4. 제품 관리");
+		System.out.println("5. 배송 관리");
+		System.out.println("0. 종료");
+	}
+
+	private static int readInt(String prompt) {
+		System.out.print(prompt);
+		while (true) {
+			String line = scanner.nextLine().trim();
+			try {
+				return Integer.parseInt(line);
+			} catch (NumberFormatException e) {
+				System.out.print("숫자만 입력 가능합니다. 다시 입력 ▶ ");
+			}
+		}
+	}
+}

@@ -1,0 +1,101 @@
+package com.Cafe.app;
+
+import java.util.Scanner;
+
+import com.Cafe.Controller.MainController;
+
+public class CafeAPP {
+	private MainController controller;
+	private Scanner scanner;
+
+	public CafeApp() {
+        controller = new MainController();
+        scanner = new Scanner(System.in);
+    }
+
+	public static void main(String[] args) {
+		CafeApp app = new CafeApp();
+		app.run();
+	}
+
+	public void run() {
+		boolean exit = false;
+		while (!exit) {
+			printMenu();
+			int choice = readInt("메뉴 선택: ");
+			switch (choice) {
+			case 1:
+				listCoffeeBeans();
+				break;
+			case 2:
+				listCustomers();
+				break;
+			case 3:
+				listProducts();
+				break;
+			case 4:
+				listOrders();
+				break;
+			case 5:
+				listDeliveries();
+				break;
+			case 0:
+				exit = true;
+				System.out.println("프로그램을 종료합니다.");
+				break;
+			default:
+				System.out.println("잘못된 선택입니다.");
+			}
+		}
+		scanner.close();
+	}
+
+	private void printMenu() {
+		System.out.println("\n=== Cafe Management System ===");
+		System.out.println("1. 모든 커피 원두 조회");
+		System.out.println("2. 모든 고객 조회");
+		System.out.println("3. 모든 제품 조회");
+		System.out.println("4. 모든 주문 조회");
+		System.out.println("5. 모든 배송 조회");
+		System.out.println("0. 종료");
+	}
+
+	private void listCoffeeBeans() {
+		List<COFFEE_BEANS> beans = controller.getAllCoffeeBeans();
+		System.out.println("-- 모든 커피 원두 --");
+		beans.forEach(b -> System.out.println(b));
+	}
+
+	private void listCustomers() {
+		List<Customer> customers = controller.getAllCustomers();
+		System.out.println("-- 모든 고객 --");
+		customers.forEach(c -> System.out.println(c));
+	}
+
+	private void listProducts() {
+		List<PRODUCT> products = controller.getAllProducts();
+		System.out.println("-- 모든 제품 --");
+		products.forEach(p -> System.out.println(p));
+	}
+
+	private void listOrders() {
+		List<ORDERS> orders = controller.getAllOrders();
+		System.out.println("-- 모든 주문 --");
+		orders.forEach(o -> System.out.println(o));
+	}
+
+	private void listDeliveries() {
+		List<DELIVERY> deliveries = controller.getAllDeliveries();
+		System.out.println("-- 모든 배송 --");
+		deliveries.forEach(d -> System.out.println(d));
+	}
+
+	private int readInt(String prompt) {
+		System.out.print(prompt);
+		while (!scanner.hasNextInt()) {
+			System.out.print("유효한 숫자를 입력하세요: ");
+			scanner.next();
+		}
+		return scanner.nextInt();
+	}
+}

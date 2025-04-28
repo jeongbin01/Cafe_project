@@ -1,0 +1,141 @@
+package com.Cafe.dao;
+
+
+
+public class CustomerDAO {
+	boolean result = false;try
+	{
+		conn = DBConnectionUtil.getConnection();
+		String sql = "INSERT INTO CUSTOMER VALUES (?, ?, ?, ?, ?, ?)";
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setInt(1, customer.getCustomerId());
+		pstmt.setString(2, customer.getName());
+		pstmt.setString(3, customer.getPhone());
+		pstmt.setString(4, customer.getEmail());
+		pstmt.setString(5, customer.getAddress());
+		pstmt.setString(6, customer.getSignupDate());
+
+		int rowsAffected = pstmt.executeUpdate();
+		if (rowsAffected > 0) {
+			result = true;
+		}
+	}catch(
+	SQLException e)
+	{
+		System.out.println("고객 추가 중 오류 발생: " + e.getMessage());
+	}finally
+	{
+		closeResources();
+	}return result;
+}
+
+// 모든 고객 조회
+public List<Customer> getAllCustomers() {
+    List<Customer> customers = new ArrayList<>();
+    try {
+        conn = DBConnectionUtil.getConnection();
+        String sql = "SELECT * FROM CUSTOMER ORDER BY CUSTOMER_ID";
+        pstmt = conn.prepareStatement(sql);
+        rs = pstmt.executeQuery();
+        
+        while (rs.next()) {
+            Customer customer = new Customer(
+                rs.getInt("CUSTOMER_ID"),
+                rs.getString("NAME"),
+                rs.getString("PHONE"),
+                rs.getString("EMAIL"),
+                rs.getString("ADDRESS"),
+                rs.getString("SIGNUP_DATE")
+            );
+            customers.add(customer);
+        }
+    } catch (SQLException e) {
+        System.out.println("고객 목록 조회 중 오류 발생: " + e.getMessage());
+    } finally {
+        closeResources();
+    }
+    return customers;
+}
+
+// 고객 ID로 고객 조회
+	public Customer getCustomerById(int customerId) {
+		Customer customer = null;
+		try {
+			conn = DBConnectionUtil.getConnection();
+			String sql = "SELECT * FROM CUSTOMER WHERE CUSTOMER_ID = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, customerId);
+			rs = pstmt.executeQuery();
+
+			if (rs.next()) {
+				customer = new Customer(rs.getInt("CUSTOMER_ID"), rs.getString("NAME"), rs.getString("PHONE"),
+						rs.getString("EMAIL"), rs.getString("ADDRESS"), rs.getString("SIGNUP_DATE"));
+			}
+		} catch (SQLException e) {
+			System.out.println("고객 조회 중 오류 발생: " + e.getMessage());
+		} finally {
+			closeResources();
+		}
+		return customer;
+	}
+
+// 고객 정보 수정
+	public boolean updateCustomer(Customer customer) {
+		boolean result = false;
+		try {
+			conn = DBConnectionUtil.getConnection();
+			String sql = "UPDATE CUSTOMER SET NAME = ?, PHONE = ?, EMAIL = ?, ADDRESS = ? WHERE CUSTOMER_ID = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, customer.getName());
+			pstmt.setString(2, customer.getPhone());
+			pstmt.setString(3, customer.getEmail());
+			pstmt.setString(4, customer.getAddress());
+			pstmt.setInt(5, customer.getCustomerId());
+
+			int rowsAffected = pstmt.executeUpdate();
+			if (rowsAffected > 0) {
+				result = true;
+			}
+		} catch (SQLException e) {
+			System.out.println("고객 정보 수정 중 오류 발생: " + e.getMessage());
+		} finally {
+			closeResources();
+		}
+		return result;
+	}
+
+// 고객 삭제
+	public boolean deleteCustomer(int customerId) {
+		boolean result = false;
+		try {
+			conn = DBConnectionUtil.getConnection();
+			String sql = "DELETE FROM CUSTOMER WHERE CUSTOMER_ID = ?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, customerId);
+
+			int rowsAffected = pstmt.executeUpdate();
+			if (rowsAffected > 0) {
+				result = true;
+			}
+		} catch (SQLException e) {
+			System.out.println("고객 삭제 중 오류 발생: " + e.getMessage());
+		} finally {
+			closeResources();
+		}
+		return result;
+	}
+
+// 자원 해제
+	private void closeResources() {
+		try {
+			if (rs != null)
+				rs.close();
+			if (pstmt != null)
+				pstmt.close();
+			if (conn != null)
+				DBConnectionUtil.close(conn);
+		} catch (SQLException e) {
+			System.out.println("자원 해제 중 오류 발생: " + e.getMessage());
+		}
+	}
+}

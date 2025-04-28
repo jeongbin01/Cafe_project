@@ -1,0 +1,79 @@
+package com.Cafe.model;
+
+public class Product {
+    private int productId;
+    private String productType;
+    private String company;
+    private String productName;
+    private String description;
+    private String mainDrinks;
+	
+    // 생성자
+    public Product() {}
+    public Product(int productId, String productType, String company, String productName, String description,
+			String mainDrinks) {
+		super();
+		this.productId = productId;
+		this.productType = productType;
+		this.company = company;
+		this.productName = productName;
+		this.description = description;
+		this.mainDrinks = mainDrinks;
+	}
+    
+    // getter, setter, toString
+	public int getProductId() {
+		return productId;
+	}
+
+	public void setProductId(int productId) {
+		this.productId = productId;
+	}
+
+	public String getProductType() {
+		return productType;
+	}
+
+	public void setProductType(String productType) {
+		this.productType = productType;
+	}
+
+	public String getCompany() {
+		return company;
+	}
+
+	public void setCompany(String company) {
+		this.company = company;
+	}
+
+	public String getProductName() {
+		return productName;
+	}
+
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getMainDrinks() {
+		return mainDrinks;
+	}
+
+	public void setMainDrinks(String mainDrinks) {
+		this.mainDrinks = mainDrinks;
+	}
+
+	@Override
+	public String toString() {
+		return "PRODUCT [productId=" + productId + ", productType=" + productType + ", company=" + company
+				+ ", productName=" + productName + ", description=" + description + ", mainDrinks=" + mainDrinks + "]";
+	}
+ 
+}

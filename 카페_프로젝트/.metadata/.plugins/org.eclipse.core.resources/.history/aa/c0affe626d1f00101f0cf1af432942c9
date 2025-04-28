@@ -1,0 +1,476 @@
+package com.Cafe.app;
+
+import java.sql.Date;
+import java.util.List;
+import java.util.Scanner;
+
+import com.Cafe.Controller.CustomerController;
+import com.Cafe.Controller.OrdersController;
+import com.Cafe.Controller.CoffeeBeansController;
+import com.Cafe.Controller.ProductController;
+import com.Cafe.Controller.DeliveryController;
+
+import com.Cafe.model.Customer;
+import com.Cafe.model.ORDERS;
+import com.Cafe.model.COFFEE_BEANS;
+import com.Cafe.model.PRODUCT;
+import com.Cafe.model.DELIVERY;
+
+public class CafeApp {
+	private static final Scanner scanner = new Scanner(System.in);
+	private static final CustomerController customerController = new CustomerController();
+	private static final OrdersController ordersController = new OrdersController();
+	private static final CoffeeBeansController coffeeBeansController = new CoffeeBeansController();
+	private static final ProductController productController = new ProductController();
+	private static final DeliveryController deliveryController = new DeliveryController();
+
+	public static void main(String[] args) {
+		boolean running = true;
+		while (running) {
+			printMainMenu();
+			int choice = readInt("메뉴 선택 ▶ ");
+			switch (choice) {
+			case 1:
+				showCustomerMenu();
+				break;
+			case 2:
+				showOrderMenu();
+				break;
+			case 3:
+				showBeansMenu();
+				break;
+			case 4:
+				showProductMenu();
+				break;
+			case 5:
+				showDeliveryMenu();
+				break;
+			case 0:
+				System.out.println("프로그램을 종료합니다. 감사합니다!");
+				running = false;
+				break;
+			default:
+				System.out.println("올바른 메뉴 번호를 입력해주세요.");
+			}
+		}
+		scanner.close();
+	}
+
+	private static void printMainMenu() {
+		System.out.println("\n===== 카페 관리 시스템 =====");
+		System.out.println("1. 고객 관리");
+		System.out.println("2. 주문 관리");
+		System.out.println("3. 원두 관리");
+		System.out.println("4. 제품 관리");
+		System.out.println("5. 배송 관리");
+		System.out.println("0. 종료");
+	}
+
+	private static int readInt(String prompt) {
+		System.out.print(prompt);
+		while (true) {
+			String line = scanner.nextLine().trim();
+			try {
+				return Integer.parseInt(line);
+			} catch (NumberFormatException e) {
+				System.out.print("숫자만 입력 가능합니다. 다시 입력 ▶ ");
+			}
+		}
+	}
+
+	private static void showCustomerMenu() {
+		boolean back = false;
+		while (!back) {
+			System.out.println("\n=== 고객 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			int menu = readInt("선택 ▶ ");
+			switch (menu) {
+			case 1:
+				List<Customer> customers = customerController.getAllCustomers();
+				if (customers.isEmpty())
+					System.out.println("등록된 고객이 없습니다.");
+				else
+					customers.forEach(System.out::println);
+				break;
+			case 2:
+				System.out.print("이름: ");
+				String name = scanner.nextLine();
+				System.out.print("전화번호: ");
+				String phone = scanner.nextLine();
+				System.out.print("이메일: ");
+				String email = scanner.nextLine();
+				System.out.print("주소: ");
+				String address = scanner.nextLine();
+				System.out.print("가입일(YYYY-MM-DD): ");
+				String signup = scanner.nextLine();
+				if (customerController.addCustomer(new Customer(0, name, phone, email, address, signup)))
+					System.out.println("고객이 등록되었습니다.");
+				else
+					System.out.println("고객 등록에 실패했습니다.");
+				break;
+			case 3:
+				System.out.print("수정할 고객 ID: ");
+				int cid = readInt("");
+				Customer exist = customerController.getCustomerById(cid);
+				if (exist == null) {
+					System.out.println("고객을 찾을 수 없습니다.");
+					break;
+				}
+				System.out.print("새 이름 (현재: " + exist.getName() + "): ");
+				String nn = scanner.nextLine();
+				System.out.print("새 전화번호 (현재: " + exist.getPhone() + "): ");
+				String np = scanner.nextLine();
+				System.out.print("새 이메일 (현재: " + exist.getEmail() + "): ");
+				String ne = scanner.nextLine();
+				System.out.print("새 주소 (현재: " + exist.getAddress() + "): ");
+				String na = scanner.nextLine();
+				System.out.print("새 가입일 (현재: " + exist.getSignupDate() + "): ");
+				String ns = scanner.nextLine();
+				Customer upC = new Customer(cid, nn.isBlank() ? exist.getName() : nn,
+						np.isBlank() ? exist.getPhone() : np, ne.isBlank() ? exist.getEmail() : ne,
+						na.isBlank() ? exist.getAddress() : na, ns.isBlank() ? exist.getSignupDate() : ns);
+				if (customerController.updateCustomer(upC))
+					System.out.println("고객 정보가 수정되었습니다.");
+				else
+					System.out.println("고객 수정에 실패했습니다.");
+				break;
+			case 4:
+				System.out.print("삭제할 고객 ID: ");
+				int del = readInt("");
+				if (customerController.deleteCustomer(del))
+					System.out.println("고객이 삭제되었습니다.");
+				else
+					System.out.println("고객 삭제에 실패했습니다.");
+				break;
+			case 0:
+				back = true;
+				break;
+			default:
+				System.out.println("올바른 선택이 아닙니다.");
+			}
+		}
+	}
+
+	private static void showOrderMenu() {
+		boolean back = false;
+		while (!back) {
+			System.out.println("\n=== 주문 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			int menu = readInt("선택 ▶ ");
+			switch (menu) {
+			case 1:
+				List<ORDERS> ords = ordersController.getClass();
+				if (ords.isEmpty())
+					System.out.println("등록된 주문이 없습니다.");
+				else
+					ords.forEach(System.out::println);
+				break;
+			case 2:
+				System.out.print("고객 ID: ");
+				int nc = readInt("");
+				System.out.print("원두 ID (0입력 시 생략): ");
+				int bid = readInt("");
+				Integer nb = bid == 0 ? null : bid;
+				System.out.print("제품 ID (0입력 시 생략): ");
+				int pid = readInt("");
+				Integer np = pid == 0 ? null : pid;
+				System.out.print("수량: ");
+				int nq = readInt("");
+				System.out.print("주문일(YYYY-MM-DD, 비워두면 오늘): ");
+				String nd = scanner.nextLine();
+				Date od;
+				try {
+					od = nd.isBlank() ? new Date(System.currentTimeMillis()) : Date.valueOf(nd);
+				} catch (IllegalArgumentException e) {
+					System.out.println("날짜 형식 오류, 오늘로 설정합니다.");
+					od = new Date(System.currentTimeMillis());
+				}
+				System.out.print("상태(비워두면 접수): ");
+				String st = scanner.nextLine();
+				ORDERS newO = new ORDERS(0, nc, nb, np, nq, od, st);
+				if (ordersController.addOrder(newO))
+					System.out.println("주문이 등록되었습니다.");
+				else
+					System.out.println("주문 등록에 실패했습니다.");
+				break;
+			case 3:
+				System.out.print("수정할 주문 ID: ");
+				int uo = readInt("");
+				ORDERS exo = ordersController.getOrderById(uo);
+				if (exo == null) {
+					System.out.println("주문을 찾을 수 없습니다.");
+					break;
+				}
+				System.out.print("새 수량 (현재: " + exo.getQuantity() + "): ");
+				int uq = readInt("");
+				System.out.print("새 상태 (현재: " + exo.getStatus() + "): ");
+				String us = scanner.nextLine();
+				ORDERS uord = new ORDERS(uo, exo.getCustomerId(), exo.getBeanId(), exo.getProductId(), uq,
+						exo.getOrderDate(), us.isBlank() ? exo.getStatus() : us);
+				if (ordersController.updateOrder(uord))
+					System.out.println("주문이 수정되었습니다.");
+				else
+					System.out.println("주문 수정에 실패했습니다.");
+				break;
+			case 4:
+				System.out.print("삭제할 주문 ID: ");
+				int doid = readInt("");
+				if (ordersController.deleteOrder(doid))
+					System.out.println("주문이 삭제되었습니다.");
+				else
+					System.out.println("주문 삭제에 실패했습니다.");
+				break;
+			case 0:
+				back = true;
+				break;
+			default:
+				System.out.println("올바른 선택이 아닙니다.");
+			}
+		}
+	}
+
+	private static void showBeansMenu() {
+		boolean back = false;
+		while (!back) {
+			System.out.println("\n=== 원두 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			int menu = readInt("선택 ▶ ");
+			switch (menu) {
+			case 1:
+				List<COFFEE_BEANS> beans = coffeeBeansController.getAllCoffeeBeans();
+				if (beans.isEmpty())
+					System.out.println("등록된 원두가 없습니다.");
+				else
+					beans.forEach(System.out::println);
+				break;
+			case 2:
+				System.out.print("이름: ");
+				String bName = scanner.nextLine();
+				System.out.print("로스팅: ");
+				String bRoast = scanner.nextLine();
+				System.out.print("플레이버 노트: ");
+				String bFn = scanner.nextLine();
+				System.out.print("특징: ");
+				String bCh = scanner.nextLine();
+				System.out.print("가격대: ");
+				String bPr = scanner.nextLine();
+				System.out.print("추천 로스터리: ");
+				String bRr = scanner.nextLine();
+				COFFEE_BEANS cb = new COFFEE_BEANS(0, bName, bRoast, bFn, bCh, bPr, bRr);
+				if (coffeeBeansController.addCoffeeBean(cb))
+					System.out.println("원두가 등록되었습니다.");
+				else
+					System.out.println("원두 등록에 실패했습니다.");
+				break;
+			case 3:
+				System.out.print("수정할 원두 ID: ");
+				int bidu = readInt("");
+				COFFEE_BEANS exb = coffeeBeansController.getCoffeeBeanById(bidu);
+				if (exb == null) {
+					System.out.println("원두를 찾을 수 없습니다.");
+					break;
+				}
+				System.out.print("새 이름 (현재: " + exb.getName() + "): ");
+				String nbn = scanner.nextLine();
+				System.out.print("새 로스팅 (현재: " + exb.getRoasting() + "): ");
+				String nro = scanner.nextLine();
+				System.out.print("새 플레이버 노트 (현재: " + exb.getFlavorNotes() + "): ");
+				String nfn = scanner.nextLine();
+				System.out.print("새 특징 (현재: " + exb.getCharacteristics() + "): ");
+				String nch = scanner.nextLine();
+				System.out.print("새 가격대 (현재: " + exb.getPriceRange() + "): ");
+				String npr = scanner.nextLine();
+				System.out.print("새 추천 로스터리 (현재: " + exb.getRecommendedRoasteries() + "): ");
+				String nrr = scanner.nextLine();
+				COFFEE_BEANS ub = new COFFEE_BEANS(bidu, nbn.isBlank() ? exb.getName() : nbn,
+						nro.isBlank() ? exb.getRoasting() : nro, nfn.isBlank() ? exb.getFlavorNotes() : nfn,
+						nch.isBlank() ? exb.getCharacteristics() : nch, npr.isBlank() ? exb.getPriceRange() : npr,
+						nrr.isBlank() ? exb.getRecommendedRoasteries() : nrr);
+				if (coffeeBeansController.updateCoffeeBean(ub))
+					System.out.println("원두 정보가 수정되었습니다.");
+				else
+					System.out.println("원두 수정에 실패했습니다.");
+				break;
+			case 4:
+				System.out.print("삭제할 원두 ID: ");
+				int bdel = readInt("");
+				if (coffeeBeansController.deleteCoffeeBean(bdel))
+					System.out.println("원두가 삭제되었습니다.");
+				else
+					System.out.println("원두 삭제에 실패했습니다.");
+				break;
+			case 0:
+				back = true;
+				break;
+			default:
+				System.out.println("올바른 선택이 아닙니다.");
+			}
+		}
+	}
+
+	private static void showProductMenu() {
+		boolean back = false;
+		while (!back) {
+			System.out.println("\n=== 제품 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			int menu = readInt("선택 ▶ ");
+			switch (menu) {
+			case 1:
+				List<PRODUCT> prods = productController.getAllProducts();
+				if (prods.isEmpty())
+					System.out.println("등록된 제품이 없습니다.");
+				else
+					prods.forEach(System.out::println);
+				break;
+			case 2:
+				System.out.print("제품 타입: ");
+				String pType = scanner.nextLine();
+				System.out.print("회사명: ");
+				String pComp = scanner.nextLine();
+				System.out.print("제품 이름: ");
+				String pName = scanner.nextLine();
+				System.out.print("설명: ");
+				String pDesc = scanner.nextLine();
+				System.out.print("주요 음료: ");
+				String pMain = scanner.nextLine();
+				PRODUCT npd = new PRODUCT(0, pType, pComp, pName, pDesc, pMain);
+				if (productController.addProduct(npd))
+					System.out.println("제품이 등록되었습니다.");
+				else
+					System.out.println("제품 등록에 실패했습니다.");
+				break;
+			case 3:
+				System.out.print("수정할 제품 ID: ");
+				int pux = readInt("");
+				PRODUCT exp = productController.getProductById(pux);
+				if (exp == null) {
+					System.out.println("제품을 찾을 수 없습니다.");
+					break;
+				}
+				System.out.print("새 제품 타입 (현재: " + exp.getProductType() + "): ");
+				String upt = scanner.nextLine();
+				System.out.print("새 회사명 (현재: " + exp.getCompany() + "): ");
+				String ucomp = scanner.nextLine();
+				System.out.print("새 제품 이름 (현재: " + exp.getProductName() + "): ");
+				String upn = scanner.nextLine();
+				System.out.print("새 설명 (현재: " + exp.getDescription() + "): ");
+				String udesc = scanner.nextLine();
+				System.out.print("새 주요 음료 (현재: " + exp.getMainDrinks() + "): ");
+				String umd = scanner.nextLine();
+				PRODUCT updP = new PRODUCT(pux, upt.isBlank() ? exp.getProductType() : upt,
+						ucomp.isBlank() ? exp.getCompany() : ucomp, upn.isBlank() ? exp.getProductName() : upn,
+						udesc.isBlank() ? exp.getDescription() : udesc, umd.isBlank() ? exp.getMainDrinks() : umd);
+				if (productController.updateProduct(updP))
+					System.out.println("제품 정보가 수정되었습니다.");
+				else
+					System.out.println("제품 수정에 실패했습니다.");
+				break;
+			case 4:
+				System.out.print("삭제할 제품 ID: ");
+				int pdel = readInt("");
+				if (productController.deleteProduct(pdel))
+					System.out.println("제품이 삭제되었습니다.");
+				else
+					System.out.println("제품 삭제에 실패했습니다.");
+				break;
+			case 0:
+				back = true;
+				break;
+			default:
+				System.out.println("올바른 선택이 아닙니다.");
+			}
+		}
+	}
+
+	private static void showDeliveryMenu() {
+		boolean back = false;
+		while (!back) {
+			System.out.println("\n=== 배송 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 5. 상태 업데이트 | 0. 뒤로가기");
+			int menu = readInt("");
+			switch (menu) {
+			case 1:
+				List<DELIVERY> dList = deliveryController.getAllDeliveries();
+				if (dList.isEmpty())
+					System.out.println("등록된 배송 정보가 없습니다.");
+				else
+					dList.forEach(System.out::println);
+				break;
+			case 2:
+				System.out.print("주문 ID: ");
+				int doid2 = readInt("");
+				System.out.print("택배사: ");
+				String co = scanner.nextLine();
+				System.out.print("예상일(YYYY-MM-DD): ");
+				String eds = scanner.nextLine();
+				Date edate;
+				try {
+					edate = Date.valueOf(eds);
+				} catch (IllegalArgumentException e) {
+					System.out.println("날짜 형식 오류.");
+					break;
+				}
+				DELIVERY ndel = new DELIVERY(0, doid2, co, edate, null, null);
+				if (deliveryController.addDelivery(ndel))
+					System.out.println("배송 정보가 등록되었습니다.");
+				else
+					System.out.println("배송 등록에 실패했습니다.");
+				break;
+			case 3:
+				System.out.print("수정할 배송 ID: ");
+				int duid = readInt("");
+				DELIVERY exd = deliveryController.getDeliveryById(duid);
+				if (exd == null) {
+					System.out.println("배송 정보를 찾을 수 없습니다.");
+					break;
+				}
+				System.out.print("새 택배사 (현재: " + exd.getCourierCompany() + "): ");
+				String nco = scanner.nextLine();
+				System.out.print("새 예상일 (YYYY-MM-DD, 현재: " + exd.getExpectedDate() + "): ");
+				String nes = scanner.nextLine();
+				Date ned;
+				try {
+					ned = nes.isBlank() ? exd.getExpectedDate() : Date.valueOf(nes);
+				} catch (IllegalArgumentException e) {
+					System.out.println("날짜 형식 오류.");
+					ned = exd.getExpectedDate();
+				}
+				System.out.print("실제 배송일 (YYYY-MM-DD, 현재: " + exd.getActualDate() + "): ");
+				String nas = scanner.nextLine();
+				Date nad = nas.isBlank() ? exd.getActualDate() : Date.valueOf(nas);
+				System.out.print("배송 상태 (현재: " + exd.getDeliveryStatus() + "): ");
+				String nst = scanner.nextLine();
+				DELIVERY upDel = new DELIVERY(duid, exd.getOrderId(), nco.isBlank() ? exd.getCourierCompany() : nco,
+						ned, nad, nst.isBlank() ? exd.getDeliveryStatus() : nst);
+				if (deliveryController.updateDelivery(upDel))
+					System.out.println("배송 정보가 수정되었습니다.");
+				else
+					System.out.println("배송 수정에 실패했습니다.");
+				break;
+			case 4:
+				System.out.print("삭제할 배송 ID: ");
+				int ddel = readInt("");
+				if (deliveryController.deleteDelivery(ddel))
+					System.out.println("배송 정보가 삭제되었습니다.");
+				else
+					System.out.println("배송 삭제에 실패했습니다.");
+				break;
+			case 5:
+				System.out.print("업데이트할 배송 ID: ");
+				int sid2 = readInt("");
+				System.out.print("새 상태: ");
+				String sts = scanner.nextLine();
+				if (deliveryController.updateDeliveryStatus(sid2, sts))
+					System.out.println("배송 상태가 업데이트되었습니다.");
+				else
+					System.out.println("배송 상태 업데이트에 실패했습니다.");
+				break;
+			case 0:
+				back = true;
+				break;
+			default:
+				System.out.println("올바른 선택이 아닙니다.");
+			}
+		}
+	}
+}

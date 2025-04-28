@@ -1,0 +1,35 @@
+package com.Cafe.app;
+
+import com.Cafe.Controller.CoffeeBeansController;
+import com.Cafe.Controller.CustomerController;
+import com.Cafe.Controller.DeliveryController;
+import com.Cafe.Controller.OrdersController;
+import com.Cafe.Controller.ProductController;
+
+
+public class CafeApp {
+
+	public static void main(String[] args) {
+		// 1) DB 연결 상태 
+		
+		
+		
+		
+		
+		// 프로그램의 시작점
+		CoffeeBeansController Coffeebeans =  new CoffeeBeansController();
+		Coffeebeans.run();
+		CustomerController Customer = new CustomerController();
+		Customer.run();
+		DeliveryController Delivery = new DeliveryController(); 
+		Delivery.run();
+		OrdersController Orders = new OrdersController();
+		Orders.run();
+		ProductController Product = new ProductController();
+		Product.run();
+		
+	
+	
+	}
+
+}

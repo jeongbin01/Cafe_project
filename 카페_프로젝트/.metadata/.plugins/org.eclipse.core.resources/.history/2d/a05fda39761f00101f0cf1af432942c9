@@ -1,0 +1,60 @@
+package com.Cafe.app;
+
+import java.util.Scanner;
+
+import com.Cafe.Controller.CoffeeBeansController;
+import com.Cafe.Controller.CustomerController;
+import com.Cafe.Controller.DeliveryController;
+import com.Cafe.Controller.OrdersController;
+import com.Cafe.Controller.ProductController;
+
+public class CafeApp {
+
+	private static final Scanner scanner = new Scanner(System.in);
+	private static final CustomerController customer = new CustomerController();
+	private static final OrdersController orders = new OrdersController();
+	private static final CoffeeBeansController coffeeBeans = new CoffeeBeansController();
+	private static final ProductController product = new ProductController();
+	private static final DeliveryController deliveryController = new DeliveryController();
+
+	public static void main(String[] args) {
+		boolean running = true;
+		while (running) {
+			printMainMenu();
+			int choice = readInt("선택 ▶ ");
+			switch (choice) {
+			case 1 -> customer.run();
+			case 2 -> orders.run();
+			case 3 -> coffeeBeans.run();
+			case 4 -> product.run();
+			case 5 -> deliveryController.run();
+			case 0 -> {
+				System.out.println("프로그램을 종료합니다.");
+				running = false;
+			}
+			default -> System.out.println("잘못된 선택입니다. 다시 입력해주세요.");
+			}
+		}
+		scanner.close();
+	}
+
+	private static void printMainMenu() {
+        System.out.println("===== 카페 관리 시스템 =====");
+        System.out.println("1. 고객 관리");
+        System.out.println("2. 주문 관리");
+        System.out.println("3. 원두 관리");
+        System.out.println("4. 제품 관리");
+        System.out.println("5. 배송 관리");
+        System.out.println("0. 종료");
+    }
+
+	private static int readInt(String prompt) {
+		System.out.print(prompt);
+		String input = scanner.nextLine();
+		try {
+			return Integer.parseInt(input);
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+}

@@ -1,0 +1,98 @@
+package com.Cafe.Controller;
+
+import java.util.List;
+
+import com.Cafe.dao.CustomerDAO;
+import com.Cafe.model.CUSTOMER.Customer;
+
+public class CustomerController {
+	private CustomerDAO customerDAO;
+
+	public CustomerController() {
+		this.customerDAO = new CustomerDAO();
+	}
+
+	public List<Customer> getAllCustomers() {
+		return customerDAO.getAllCustomers();
+	}
+
+	public Customer getCustomerById(int id) {
+		return customerDAO.getCustomerById(id);
+	}
+
+	public boolean addCustomer(Customer customer) {
+		// 유효성 검사 수행
+		if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+			return false;
+		}
+
+		if (customer.getEmail() == null || !isValidEmail(customer.getEmail())) {
+			return false;
+		}
+
+		if (customer.getPhone() == null || !isValidPhone(customer.getPhone())) {
+			return false;
+		}
+
+		// 이미 존재하는 ID인지 확인
+		if (customerDAO.getCustomerById(customer.getCustomerId()) != null) {
+			return false;
+		}
+
+		return customerDAO.insertCustomer(customer);
+	}
+
+	public boolean updateCustomer(Customer customer) {
+		// 유효성 검사 수행
+		if (customer.getName() == null || customer.getName().trim().isEmpty()) {
+			return false;
+		}
+
+		if (customer.getEmail() == null || !isValidEmail(customer.getEmail())) {
+			return false;
+		}
+
+		if (customer.getPhone() == null || !isValidPhone(customer.getPhone())) {
+			return false;
+		}
+
+		// 존재하는 ID인지 확인
+		if (customerDAO.getCustomerById(customer.getCustomerId()) == null) {
+			return false;
+		}
+
+		return customerDAO.updateCustomer(customer);
+	}
+
+	public boolean deleteCustomer(int id) {
+		// 존재하는 ID인지 확인
+		if (customerDAO.getCustomerById(id) == null) {
+			return false;
+		}
+
+		return customerDAO.deleteCustomer(id);
+	}
+
+	// 고객 검색 기능
+	public List<Customer> searchCustomersByName(String keyword) {
+		List<Customer> allCustomers = customerDAO.getAllCustomers();
+
+		// Java 8 스트림을 사용하여 필터링
+		return allCustomers.stream()
+				.filter(customer -> customer.getName().toLowerCase().contains(keyword.toLowerCase())).toList();
+	}
+
+	// 이메일 유효성 검사
+	private boolean isValidEmail(String email) {
+		// 간단한 이메일 형식 검사
+		String regex = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+		return email.matches(regex);
+	}
+
+	// 전화번호 유효성 검사
+	private boolean isValidPhone(String phone) {
+		// 간단한 전화번호 형식 검사 (예: 010-1234-5678)
+		String regex = "^\\d{2,3}-\\d{3,4}-\\d{4}$";
+		return phone.matches(regex);
+	}
+}

@@ -1,0 +1,87 @@
+package com.Cafe.Controller;
+
+import java.util.List;
+import java.util.Scanner;
+import com.Cafe.dao.ProductDAO;
+import com.Cafe.model.Product;
+
+public class ProductController {
+
+	private final ProductDAO dao = new ProductDAO();
+	private final Scanner sc = new Scanner(System.in);
+	// 제품 관리
+	public void run() {
+		while (true) {
+			System.out.println("\n=== 제품 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			System.out.print("선택: ");
+			int menu = sc.nextInt();
+			sc.nextLine();
+
+			switch (menu) {
+			case 1 -> showAllProducts();
+			case 2 -> addProduct();
+			case 3 -> updateProduct();
+			case 4 -> deleteProduct();
+			case 0 -> {
+				return;
+			}
+			default -> System.out.println("잘못된 선택입니다.");
+			}
+		}
+	}
+
+	// 제품 조회
+	private void showAllProducts() {
+		List<Product> products = dao.getAllProducts();
+		for (Product product : products) {
+			System.out.println(product);
+		}
+	}
+
+	// 제품 등록
+	private void addProduct() {
+		System.out.print("제품 ID: ");
+		int productId = sc.nextInt();
+		sc.nextLine();
+		System.out.print("제품 타입: ");
+		String productType = sc.nextLine();
+		System.out.print("회사: ");
+		String company = sc.nextLine();
+		System.out.print("제품 이름: ");
+		String productName = sc.nextLine();
+		System.out.print("설명: ");
+		String description = sc.nextLine();
+		System.out.print("주요 음료: ");
+		String mainDrinks = sc.nextLine();
+
+		Product product = new Product(productId, productType, company, productName, description, mainDrinks);
+		dao.insertProduct(product);
+	}
+
+	// 제품 수정
+	private void updateProduct() {
+		System.out.print("제품 ID: ");
+		int productId = sc.nextInt();
+		sc.nextLine();
+		System.out.print("제품 타입: ");
+		String productType = sc.nextLine();
+		System.out.print("회사: ");
+		String company = sc.nextLine();
+		System.out.print("제품 이름: ");
+		String productName = sc.nextLine();
+
+		System.out.print("주요 음료: ");
+		String mainDrinks = sc.nextLine();
+
+		Product product = new Product(productId, productType, company, productName, null, mainDrinks);
+		dao.insertProduct(product);
+	}
+
+	// 제품 삭제
+	private void deleteProduct() {
+		System.out.print("삭제할 제품 ID: ");
+		int productId = sc.nextInt();
+		dao.deleteProduct(productId);
+	}
+}

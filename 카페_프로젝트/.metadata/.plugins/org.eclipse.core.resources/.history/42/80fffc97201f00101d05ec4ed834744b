@@ -1,0 +1,187 @@
+package com.Cafe.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.Cafe.model.ORDERS;
+
+public class OrdersDAO {
+	private final String url = "jdbc:oracle:thin:@localhost:1521:xe";
+	private final String user = "C##Cafe_Website";
+	private final String password = "1234";
+
+	// 올바른 DB 연결 메서드
+	private Connection getConnection() throws SQLException {
+		return DriverManager.getConnection(url, user, password);
+	}
+
+	// 모든 주문 정보 조회
+	public List<ORDERS> getAllOrders() {
+		List<ORDERS> ordersList = new ArrayList<>();
+		String sql = "SELECT * FROM ORDERS";
+
+		try (Connection conn = getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+
+			while (rs.next()) {
+				ORDERS order = new ORDERS(rs.getInt("order_id"), rs.getInt("customer_id"),
+						rs.getObject("bean_id") != null ? rs.getInt("bean_id") : null,
+						rs.getObject("product_id") != null ? rs.getInt("product_id") : null, rs.getInt("quantity"),
+						rs.getDate("order_date"), rs.getString("status"));
+				ordersList.add(order);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return ordersList;
+	}
+
+	// ID로 특정 주문 정보 조회
+	public ORDERS getOrderById(int orderId) {
+		String sql = "SELECT * FROM ORDERS WHERE order_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, orderId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					return new ORDERS(rs.getInt("order_id"), rs.getInt("customer_id"),
+							rs.getObject("bean_id") != null ? rs.getInt("bean_id") : null,
+							rs.getObject("product_id") != null ? rs.getInt("product_id") : null, rs.getInt("quantity"),
+							rs.getDate("order_date"), rs.getString("status"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	// 고객 ID로 주문 정보 조회
+	public List<ORDERS> getOrdersByCustomerId(int customerId) {
+		List<ORDERS> ordersList = new ArrayList<>();
+		String sql = "SELECT * FROM ORDERS WHERE customer_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, customerId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					ORDERS order = new ORDERS(rs.getInt("order_id"), rs.getInt("customer_id"),
+							rs.getObject("bean_id") != null ? rs.getInt("bean_id") : null,
+							rs.getObject("product_id") != null ? rs.getInt("product_id") : null, rs.getInt("quantity"),
+							rs.getDate("order_date"), rs.getString("status"));
+					ordersList.add(order);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return ordersList;
+	}
+
+	// 새 주문 등록
+	public boolean insertOrder(ORDERS order) {
+		String sql = "INSERT INTO ORDERS "
+				+ "(order_id, customer_id, bean_id, product_id, quantity, order_date, status) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, order.getOrderId());
+			pstmt.setInt(2, order.getCustomerId());
+
+			if (order.getBeanId() != null) {
+				pstmt.setInt(3, order.getBeanId());
+			} else {
+				pstmt.setNull(3, java.sql.Types.INTEGER);
+			}
+
+			if (order.getProductId() != null) {
+				pstmt.setInt(4, order.getProductId());
+			} else {
+				pstmt.setNull(4, java.sql.Types.INTEGER);
+			}
+
+			pstmt.setInt(5, order.getQuantity());
+			pstmt.setDate(6, order.getOrderDate());
+			pstmt.setString(7, order.getStatus());
+
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 주문 정보 수정
+	public boolean updateOrder(ORDERS order) {
+		String sql = "UPDATE ORDERS SET " + "customer_id = ?, bean_id = ?, product_id = ?, quantity = ?, status = ? "
+				+ "WHERE order_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, order.getCustomerId());
+
+			if (order.getBeanId() != null) {
+				pstmt.setInt(2, order.getBeanId());
+			} else {
+				pstmt.setNull(2, java.sql.Types.INTEGER);
+			}
+
+			if (order.getProductId() != null) {
+				pstmt.setInt(3, order.getProductId());
+			} else {
+				pstmt.setNull(3, java.sql.Types.INTEGER);
+			}
+
+			pstmt.setInt(4, order.getQuantity());
+			pstmt.setString(5, order.getStatus());
+			pstmt.setInt(6, order.getOrderId());
+
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 주문 상태 업데이트
+	public boolean updateOrderStatus(int orderId, String status) {
+		String sql = "UPDATE ORDERS SET status = ? WHERE order_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, status);
+			pstmt.setInt(2, orderId);
+
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 주문 삭제
+	public boolean deleteOrder(int orderId) {
+		String sql = "DELETE FROM ORDERS WHERE order_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, orderId);
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}

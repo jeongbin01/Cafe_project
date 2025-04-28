@@ -1,0 +1,124 @@
+package com.Cafe.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.Cafe.model.Coffee_beans;
+
+public class CoffeeBeansDAO {
+	private final String url = "jdbc:oracle:thin:@localhost:1521:xe";
+	private final String user = "C##Cafe_Website";
+	private final String password = "1234";
+
+	// 올바른 Connection 반환
+	private Connection getConnection() throws SQLException {
+		return DriverManager.getConnection(url, user, password);
+	}
+
+	// 모든 커피 원두 정보 조회
+	public List<Coffee_beans> getAllCoffeeBeans() {
+		List<Coffee_beans> beansList = new ArrayList<>();
+		String sql = "SELECT * FROM COFFEE_BEANS";
+
+		try (Connection conn = getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+
+			while (rs.next()) {
+				Coffee_beans beans = new Coffee_beans(rs.getInt("id"), rs.getString("name"), rs.getString("roasting"),
+						rs.getString("flavor_notes"), rs.getString("characteristics"), rs.getString("price_range"),
+						rs.getString("recommended_roasteries"));
+				beansList.add(beans);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return beansList;
+	}
+
+	// ID로 특정 커피 원두 정보 조회
+	public Coffee_beans getCoffeeBeanById(int id) {
+		String sql = "SELECT * FROM COFFEE_BEANS WHERE id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, id);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					return new Coffee_beans(rs.getInt("id"), rs.getString("name"), rs.getString("roasting"),
+							rs.getString("flavor_notes"), rs.getString("characteristics"), rs.getString("price_range"),
+							rs.getString("recommended_roasteries"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	// 새 커피 원두 등록
+	public boolean insertCoffeeBean(Coffee_beans beans) {
+		String sql = "INSERT INTO COFFEE_BEANS "
+				+ "(id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, beans.getId());
+			pstmt.setString(2, beans.getName());
+			pstmt.setString(3, beans.getRoasting());
+			pstmt.setString(4, beans.getFlavorNotes());
+			pstmt.setString(5, beans.getCharacteristics());
+			pstmt.setString(6, beans.getPriceRange());
+			pstmt.setString(7, beans.getRecommendedRoasteries());
+
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 커피 원두 정보 수정
+	public boolean updateCoffeeBean(Coffee_beans beans) {
+		String sql = "UPDATE COFFEE_BEANS SET " + "name = ?, roasting = ?, flavor_notes = ?, characteristics = ?, "
+				+ "price_range = ?, recommended_roasteries = ? WHERE id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, beans.getName());
+			pstmt.setString(2, beans.getRoasting());
+			pstmt.setString(3, beans.getFlavorNotes());
+			pstmt.setString(4, beans.getCharacteristics());
+			pstmt.setString(5, beans.getPriceRange());
+			pstmt.setString(6, beans.getRecommendedRoasteries());
+			pstmt.setInt(7, beans.getId());
+
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 커피 원두 삭제
+	public boolean deleteCoffeeBean(int id) {
+		String sql = "DELETE FROM COFFEE_BEANS WHERE id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, id);
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}

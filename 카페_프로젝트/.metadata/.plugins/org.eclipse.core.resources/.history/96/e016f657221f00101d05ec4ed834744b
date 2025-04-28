@@ -1,0 +1,48 @@
+package com.Cafe.app;
+
+import java.util.Scanner;
+
+import com.Cafe.Controller.CoffeeBeansController;
+import com.Cafe.Controller.CustomerController;
+import com.Cafe.Controller.DeliveryController;
+import com.Cafe.Controller.OrdersController;
+import com.Cafe.Controller.ProductController;
+import com.sun.jdi.connect.spi.Connection;
+
+
+public class CafeApp {
+
+
+	
+	public static void main(String[] args) {
+		 private static final Scanner scanner = new Scanner(System.in);
+
+		        // 1) DB 연결 상태 확인
+		        try (Connection conn = OracleSQL_Crfe.getConnection()) {
+		            if (conn != null) {
+		                System.out.println("===== DB 연결 성공 =====");
+		            } else {
+		                System.err.println("DB 연결 실패: Connection is null");
+		                return;
+		            }
+		        } catch (SQLException e) {
+		            System.err.println("DB 연결 실패: " + e.getMessage());
+		            return;
+
+		
+		
+		
+		
+		// 프로그램의 시작점
+		CustomerController Customer = new CustomerController(); // 고객
+		OrdersController Orders = new OrdersController(); // 주문
+		CoffeeBeansController Coffeebeans =  new CoffeeBeansController(); //원두
+		ProductController Product = new ProductController();  // 제품 (시럽/티백/스무디 베이스)
+		DeliveryController Delivery = new DeliveryController(); // 배송 
+		
+		
+	
+	
+	}
+
+}

@@ -1,0 +1,119 @@
+package com.Cafe.Controller;
+
+import java.sql.Date;
+import java.util.List;
+
+import com.Cafe.dao.DeliveryDAO;
+import com.Cafe.dao.OrdersDAO;
+import com.Cafe.model.DELIVERY;
+import com.Cafe.model.ORDERS;
+
+public class DeliveryController {
+	private DeliveryDAO deliveryDAO;
+	private OrdersDAO ordersDAO;
+
+	public DeliveryController() {
+		this.deliveryDAO = new DeliveryDAO();
+		this.ordersDAO = new OrdersDAO();
+	}
+
+	public List<DELIVERY> getAllDeliveries() {
+		return deliveryDAO.getAllDeliveries();
+	}
+
+	public DELIVERY getDeliveryById(int id) {
+		return deliveryDAO.getDeliveryById(id);
+	}
+
+	public DELIVERY getDeliveryByOrderId(int orderId) {
+		return deliveryDAO.getDeliveryByOrderId(orderId);
+	}
+
+	public boolean addDelivery(DELIVERY delivery) {
+		// 유효성 검사 수행
+		if (delivery.getCourierCompany() == null || delivery.getCourierCompany().trim().isEmpty()) {
+			return false;
+		}
+
+		if (delivery.getExpectedDate() == null) {
+			return false;
+		}
+
+		// 배송 상태 초기화
+		if (delivery.getDeliveryStatus() == null) {
+			delivery.setDeliveryStatus("준비중");
+		}
+
+		// 주문이 실제로 존재하는지 확인
+		ORDERS order = ordersDAO.getOrderById(delivery.getOrderId());
+		if (order == null) {
+			return false;
+		}
+
+		// 이미 존재하는 ID인지 확인
+		if (deliveryDAO.getDeliveryById(delivery.getDeliveryId()) != null) {
+			return false;
+		}
+
+		// 주문 상태 업데이트
+		ordersDAO.updateOrderStatus(delivery.getOrderId(), "배송준비중");
+
+		return deliveryDAO.insertDelivery(delivery);
+	}
+
+	public boolean updateDelivery(DELIVERY delivery) {
+		// 유효성 검사 수행
+		if (delivery.getCourierCompany() == null || delivery.getCourierCompany().trim().isEmpty()) {
+			return false;
+		}
+
+		// 존재하는 ID인지 확인
+		if (deliveryDAO.getDeliveryById(delivery.getDeliveryId()) == null) {
+			return false;
+		}
+
+		return deliveryDAO.updateDelivery(delivery);
+	}
+
+	public boolean deleteDelivery(int id) {
+		// 존재하는 ID인지 확인
+		DELIVERY delivery = deliveryDAO.getDeliveryById(id);
+		if (delivery == null) {
+			return false;
+		}
+
+		return deliveryDAO.deleteDelivery(id);
+	}
+
+	// 배송 상태 업데이트
+	public boolean updateDeliveryStatus(int deliveryId, String status) {
+		// 존재하는 ID인지 확인
+		DELIVERY delivery = deliveryDAO.getDeliveryById(deliveryId);
+		if (delivery == null) {
+			return false;
+		}
+
+		// 주문 상태도 함께 업데이트
+		if (status.equals("배송중")) {
+			ordersDAO.updateOrderStatus(delivery.getOrderId(), "배송중");
+		} else if (status.equals("배송완료")) {
+			ordersDAO.updateOrderStatus(delivery.getOrderId(), "배송완료");
+
+			// 실제 배송일 업데이트
+			delivery.setActualDate(new Date(System.currentTimeMillis()));
+			deliveryDAO.updateDelivery(delivery);
+		}
+
+		return deliveryDAO.updateDeliveryStatus(deliveryId, status);
+	}
+
+	// 배송 상태 조회
+	public String getDeliveryStatus(int deliveryId) {
+		DELIVERY delivery = deliveryDAO.getDeliveryById(deliveryId);
+		if (delivery == null) {
+			return "배송 정보가 없습니다";
+		}
+
+		return delivery.getDeliveryStatus();
+	}
+}

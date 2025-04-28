@@ -1,0 +1,123 @@
+package com.Cafe.Controller;
+
+import java.sql.Date;
+import java.util.List;
+
+import com.Cafe.model.COFFEE_BEANS;
+import com.Cafe.model.CUSTOMER.Customer;
+import com.Cafe.model.DELIVERY;
+import com.Cafe.model.ORDERS;
+import com.Cafe.model.PRODUCT;
+
+public class MainController {
+	private final CoffeeBeansController coffeeBeansController;
+	private final CustomerController customerController;
+	private final DeliveryController deliveryController;
+	private final OrdersController ordersController;
+	private final ProductController productController;
+
+	public MainController() {
+		this.coffeeBeansController = new CoffeeBeansController();
+		this.customerController = new CustomerController();
+		this.deliveryController = new DeliveryController();
+		this.ordersController = new OrdersController();
+		this.productController = new ProductController();
+	}
+
+	// 고객 관련
+	public List<Customer> getAllCustomers() {
+		return customerController.getAllCustomers();
+	}
+
+	public Customer getCustomerById(int id) {
+		return customerController.getCustomerById(id);
+	}
+
+	public boolean addCustomer(Customer customer) {
+		return customerController.addCustomer(customer);
+	}
+
+	public boolean updateCustomer(Customer customer) {
+		return customerController.updateCustomer(customer);
+	}
+
+	public boolean deleteCustomer(int id) {
+		return customerController.deleteCustomer(id);
+	}
+
+	// 주문 관련
+	public List<ORDERS> getAllOrders() {
+		return ordersController.getAllOrders();
+	}
+
+	public ORDERS getOrderById(int id) {
+		return ordersController.getOrderById(id);
+	}
+
+	public boolean addOrder(ORDERS order) {
+		return ordersController.addOrder(order);
+	}
+
+	public boolean updateOrder(ORDERS order) {
+		return ordersController.updateOrder(order);
+	}
+
+	public boolean deleteOrder(int id) {
+		return ordersController.deleteOrder(id);
+	}
+
+	// 원두 관련
+	public List<COFFEE_BEANS> getAllCoffeeBeans() {
+		return coffeeBeansController.getAllCoffeeBeans();
+	}
+
+	public boolean addCoffeeBean(COFFEE_BEANS bean) {
+		return coffeeBeansController.addCoffeeBean(bean);
+	}
+
+	public boolean updateCoffeeBean(COFFEE_BEANS bean) {
+		return coffeeBeansController.updateCoffeeBean(bean);
+	}
+
+	public boolean deleteCoffeeBean(int id) {
+		return coffeeBeansController.deleteCoffeeBean(id);
+	}
+
+	// 제품 관련
+	public List<PRODUCT> getAllProducts() {
+		return productController.getAllProducts();
+	}
+
+	public boolean addProduct(PRODUCT product) {
+		return productController.addProduct(product);
+	}
+
+	public boolean updateProduct(PRODUCT product) {
+		return productController.updateProduct(product);
+	}
+
+	public boolean deleteProduct(int id) {
+		return productController.deleteProduct(id);
+	}
+
+	// 배송 관련
+	public List<DELIVERY> getAllDeliveries() {
+		return deliveryController.getAllDeliveries();
+	}
+
+	public boolean addDelivery(DELIVERY delivery) {
+		return deliveryController.addDelivery(delivery);
+	}
+
+	public boolean updateDelivery(DELIVERY delivery) {
+		return deliveryController.updateDelivery(delivery);
+	}
+
+	public boolean deleteDelivery(int id) {
+		return deliveryController.deleteDelivery(id);
+	}
+
+	public boolean updateDeliveryStatus(int deliveryId, String status) {
+		return deliveryController.updateDeliveryStatus(deliveryId, status);
+	}
+}

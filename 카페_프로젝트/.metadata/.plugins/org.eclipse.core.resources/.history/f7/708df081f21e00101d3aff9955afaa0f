@@ -1,0 +1,68 @@
+package com.Cafe.app;
+
+import java.util.List;
+import java.util.Scanner;
+
+import com.Cafe.dao.CoffeeBeansDAO;
+import com.Cafe.dao.CustomerDAO;
+import com.Cafe.dao.DeliveryDAO;
+import com.Cafe.dao.OrdersDAO;
+import com.Cafe.model.COFFEE_BEANS;
+import com.Cafe.model.CUSTOMER;
+import com.Cafe.model.DELIVERY;
+import com.Cafe.model.ORDERS;
+
+public class CafeApp {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        CoffeeBeansDAO beansDAO = new CoffeeBeansDAO();
+        CustomerDAO customerDAO = new CustomerDAO();
+        OrdersDAO ordersDAO = new OrdersDAO();
+        DeliveryDAO deliveryDAO = new DeliveryDAO();
+
+        while (true) {
+            System.out.println("=== Cafe Management System ===");
+            System.out.println("1. 커피 원두 목록 조회");
+            System.out.println("2. 고객 목록 조회");
+            System.out.println("3. 주문 목록 조회");
+            System.out.println("4. 배송 목록 조회");
+            System.out.println("0. 종료");
+            System.out.print("메뉴 선택: ");
+            int menu = sc.nextInt();
+
+            switch (menu) {
+                case 1:
+                    List<COFFEE_BEANS> beansList = beansDAO.getAllCoffeeBeans();
+                    for (COFFEE_BEANS bean : beansList) {
+                        System.out.println(bean);
+                    }
+                    break;
+                case 2:
+                    List<CUSTOMER.Customer> customerList = customerDAO.getAllCustomers();
+                    for (CUSTOMER.Customer customer : customerList) {
+                        System.out.println(customer);
+                    }
+                    break;
+                case 3:
+                    List<ORDERS> ordersList = ordersDAO.getAllOrders();
+                    for (ORDERS order : ordersList) {
+                        System.out.println(order);
+                    }
+                    break;
+                case 4:
+                    List<DELIVERY> deliveryList = deliveryDAO.getAllDeliveries();
+                    for (DELIVERY delivery : deliveryList) {
+                        System.out.println(delivery);
+                    }
+                    break;
+                case 0:
+                    System.out.println("프로그램을 종료합니다.");
+                    sc.close();
+                    return;
+                default:
+                    System.out.println("잘못된 입력입니다.");
+            }
+        }
+    }
+}

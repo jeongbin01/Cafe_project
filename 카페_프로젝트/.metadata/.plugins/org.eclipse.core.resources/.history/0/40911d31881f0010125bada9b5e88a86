@@ -1,0 +1,135 @@
+package com.Cafe.Controller;
+
+import java.util.List;
+import java.util.Scanner;
+
+import com.Cafe.dao.CustomerDAO;
+import com.Cafe.model.Customer;
+
+public class CustomerController {
+    private final CustomerDAO dao = new CustomerDAO();
+    private final Scanner sc = new Scanner(System.in);
+
+    // 고객 관리 메뉴 실행
+    public void run() {
+        while (true) {
+            System.out.println("\n=== 고객 관리 ===");
+            System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+            System.out.print("선택: ");
+            int menu;
+            try {
+                menu = Integer.parseInt(sc.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("숫자를 입력해주세요.");
+                continue;
+            }
+            switch (menu) {
+                case 1 -> listAll();                  // 고객 전체 조회
+                case 2 -> addCustomerInteractive();   // 고객 등록
+                case 3 -> editCustomerInteractive();  // 고객 수정
+                case 4 -> deleteCustomerInteractive(); // 고객 삭제
+                case 0 -> {
+                    System.out.println("뒤로 가기");
+                    return; // 돌아가기
+                }
+                default -> System.out.println("잘못된 선택입니다.");
+            }
+        }
+    }
+
+    // 1. 전체 고객 조회
+    private void listAll() {
+        List<Customer> customerList = dao.getAllCustomers();
+        if (customerList == null || customerList.isEmpty()) {
+            System.out.println("등록된 고객이 없습니다.");
+        } else {
+            for (Customer customer : customerList) {
+                System.out.println(customer);
+            }
+        }
+    }
+
+    // 2. 고객 등록
+    private void addCustomerInteractive() {
+        System.out.print("이름: ");
+        String name = sc.nextLine();
+        System.out.print("전화번호: ");
+        String phone = sc.nextLine();
+        System.out.print("이메일: ");
+        String email = sc.nextLine();
+        System.out.print("주소: ");
+        String address = sc.nextLine();
+        System.out.print("가입일 : ");
+        String  signup_date = sc.nextLine();
+
+        Customer customer = new Customer(name, phone, email, address, signup_date);
+        try {
+            boolean result = dao.addCustomer(customer);
+            if (result) {
+                System.out.println("고객이 등록되었습니다.");
+            } else {
+                System.out.println("고객 등록에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            System.out.println("고객 등록 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    // 3. 고객 수정
+    private void editCustomerInteractive() {
+        System.out.print("수정할 고객 ID: ");
+        int customerId;
+        try {
+            customerId = Integer.parseInt(sc.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("유효한 고객 ID를 입력해주세요.");
+            return;
+        }
+
+        System.out.print("새 이름: ");
+        String name = sc.nextLine();
+        System.out.print("새 전화번호: ");
+        String phone = sc.nextLine();
+        System.out.print("새 이메일: ");
+        String email = sc.nextLine();
+        System.out.print("새 주소: ");
+        String address = sc.nextLine();
+        System.out.print("가입일 : ");
+        String  signup_date = sc.nextLine();
+
+        Customer customer = new Customer(customerId, name, phone, email, address, signup_date);
+        try {
+            boolean result = dao.updateCustomer(customer);
+            if (result) {
+                System.out.println("고객 정보가 수정되었습니다.");
+            } else {
+                System.out.println("고객 수정에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            System.out.println("고객 수정 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    // 4. 고객 삭제
+    private void deleteCustomerInteractive() {
+        System.out.print("삭제할 고객 ID: ");
+        int customerId;
+        try {
+            customerId = Integer.parseInt(sc.nextLine());
+        } catch (NumberFormatException e) {
+            System.out.println("유효한 고객 ID를 입력해주세요.");
+            return;
+        }
+
+        try {
+            boolean result = dao.deleteCustomer(customerId);
+            if (result) {
+                System.out.println("고객이 삭제되었습니다.");
+            } else {
+                System.out.println("고객 삭제에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            System.out.println("고객 삭제 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+}

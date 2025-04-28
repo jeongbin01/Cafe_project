@@ -1,0 +1,466 @@
+-- 1) 고객 테이블
+CREATE TABLE CUSTOMER (
+    CUSTOMER_ID   NUMBER        PRIMARY KEY,       -- 고객 고유 ID
+    NAME          VARCHAR2(100) NOT NULL,          -- 고객 이름
+    PHONE         VARCHAR2(20),                    -- 전화번호
+    EMAIL         VARCHAR2(100),                   -- 이메일
+    ADDRESS       VARCHAR2(200),                   -- 주소
+    SIGNUP_DATE   DATE          DEFAULT SYSDATE    -- 가입일 (기본값: 현재 날짜)
+);
+
+-- 2) 주문 테이블
+CREATE TABLE ORDERS (
+    ORDER_ID      NUMBER        PRIMARY KEY,          -- 주문 고유 ID
+    CUSTOMER_ID   NUMBER        NOT NULL,             -- 주문한 고객 ID
+    BEAN_ID       NUMBER,                             -- 주문한 원두 ID
+    PRODUCT_ID    NUMBER,                             -- 주문한 제품 ID
+    QUANTITY      NUMBER        DEFAULT 1,            -- 수량
+    ORDER_DATE    DATE          DEFAULT SYSDATE,      -- 주문 일시
+    STATUS        VARCHAR2(50)  DEFAULT '접수',        -- 주문 상태
+    FOREIGN KEY (CUSTOMER_ID) REFERENCES CUSTOMER(CUSTOMER_ID),
+    FOREIGN KEY (BEAN_ID)       REFERENCES COFFEE_BEANS(ID),
+    FOREIGN KEY (PRODUCT_ID)    REFERENCES PRODUCT(PRODUCT_ID)
+);
+
+-- 3) 원두 테이블
+CREATE TABLE COFFEE_BEANS (
+    ID                       NUMBER        PRIMARY KEY,   	-- 원두 고유 ID
+    NAME                     VARCHAR2(100) NOT NULL,      	-- 원두 이름
+    ROASTING                 VARCHAR2(20),                  -- 로스팅 정도 (라이트, 미디엄, 다크)
+    FLAVOR_NOTES             VARCHAR2(200),                 -- 맛 노트
+    CHARACTERISTICS          VARCHAR2(500),                 -- 원두 특징
+    PRICE_RANGE              VARCHAR2(50),                  -- 가격대
+    RECOMMENDED_ROASTERIES   VARCHAR2(200)                  -- 추천 로스터리
+);
+
+-- 4) 제품 테이블
+CREATE TABLE PRODUCT (
+    PRODUCT_ID    NUMBER        PRIMARY KEY,        -- 제품 고유 ID
+    PRODUCT_TYPE  VARCHAR2(50)  NOT NULL,           -- 제품 종류 (시럽/티백/스무디 베이스 등)
+    COMPANY       VARCHAR2(100),                    -- 제조사 또는 브랜드
+    PRODUCT_NAME  VARCHAR2(100) NOT NULL,           -- 제품명
+    DESCRIPTION   VARCHAR2(500),                    -- 제품 설명
+    MAIN_DRINKS   VARCHAR2(300)                     -- 주요 음료 (예: 라떼, 아메리카노 등)
+);
+
+-- 5) 배송 정보 테이블
+CREATE TABLE DELIVERY (
+    DELIVERY_ID     NUMBER        PRIMARY KEY,      -- 배송 고유 ID
+    ORDER_ID        NUMBER        NOT NULL,         -- 배송 대상 주문 ID
+    COURIER_COMPANY VARCHAR2(100),                  -- 택배사 이름
+    EXPECTED_DATE   DATE,                           -- 예정 배송일
+    ACTUAL_DATE     DATE,                           -- 실제 배송일
+    DELIVERY_STATUS VARCHAR2(50),                   -- 배송 상태
+    FOREIGN KEY (ORDER_ID) REFERENCES ORDERS(ORDER_ID)
+);
+
+
+// 고객 : CUSTOMER
+INSERT INTO CUSTOMER VALUES (1, '홍길동', '010-1111-1111', 'hong@example.com', '서울시 강남구', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (2, '김영희', '010-2222-2222', 'kim@example.com',  '부산시 해운대구', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (3, '이민호', '010-3333-3333', 'lee@example.com',  '대구시 수성구', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (4, '박지성', '010-4444-4444', 'park@example.com','인천시 연수구', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (5, '최수정', '010-5555-5555', 'choi@example.com','대전시 서구', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (6, '정유진', '010-6666-6666', 'jung@example.com','광주시 북구', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (7, '강다니엘','010-7777-7777','kang@example.com','제주시 애월읍', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (8,  '이수민',   '010-8888-8888', 'sumin@example.com',   '경기도 성남시 분당구', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (9,  '최민호',   '010-9999-9999', 'minho@example.com',   '울산광역시 남구', TO_DATE('2025-04-18','YYYY-MM-DD'));
+INSERT INTO CUSTOMER VALUES (10, '박서준',   '010-1010-1010', 'seojoon@example.com', '강원도 춘천시', TO_DATE('2025-04-18','YYYY-MM-DD'));
+
+// 주문 : ORDERS
+INSERT INTO ORDERS VALUES (
+  101, 1, 2, NULL, 2,
+  TO_DATE('2025-04-18 11:23:00', 'YYYY-MM-DD HH24:MI:SS'),
+  '접수'
+);
+
+INSERT INTO ORDERS VALUES (
+  102, 2, NULL, 7, 1,
+  TO_DATE('2025-04-19 14:10:00', 'YYYY-MM-DD HH24:MI:SS'),
+  '조리중'
+);
+
+INSERT INTO ORDERS VALUES (
+  103, 3, 4, 6, 3,
+  TO_DATE('2025-04-20 16:45:00', 'YYYY-MM-DD HH24:MI:SS'),
+  '배송중'
+);
+
+INSERT INTO ORDERS VALUES (
+  104, 1, NULL, 15, 1,
+  TO_DATE('2025-04-20 09:05:00', 'YYYY-MM-DD HH24:MI:SS'),
+  '완료'
+);
+
+INSERT INTO ORDERS VALUES (
+  105, 4, 10, 2, 5,
+  TO_DATE('2025-04-21 08:50:00', 'YYYY-MM-DD HH24:MI:SS'),
+  '접수'
+);
+INSERT INTO ORDERS VALUES (
+  106, 2, NULL, 8, 2,
+  TO_DATE('2025-04-22 10:15:00','YYYY-MM-DD HH24:MI:SS'),
+  '접수'
+);
+
+INSERT INTO ORDERS VALUES (
+  107, 3, 3, NULL, 1,
+  TO_DATE('2025-04-23 13:40:00','YYYY-MM-DD HH24:MI:SS'),
+  '조리중'
+);
+
+INSERT INTO ORDERS VALUES (
+  108, 4, 5, 14, 4,
+  TO_DATE('2025-04-24 17:20:00','YYYY-MM-DD HH24:MI:SS'),
+  '배송중'
+);
+
+INSERT INTO ORDERS VALUES (
+  109, 1, NULL, 9, 3,
+  TO_DATE('2025-04-25 11:05:00','YYYY-MM-DD HH24:MI:SS'),
+  '완료'
+);
+
+INSERT INTO ORDERS VALUES (
+  110, 2, 7, 5, 2,
+  TO_DATE('2025-04-26 15:30:00','YYYY-MM-DD HH24:MI:SS'),
+  '접수'
+);
+
+
+// 커피 : coffee_beans
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+  1,
+  '블루보틀 - 벨라 도노반 (bella donovan)',
+  '미디엄',
+  '딸기, 밀크초콜릿, 몰트',
+  '에티오피아와 수마트라 블렌드. 밸런스 좋아서 핸드드립·브루잉용으로 인기 많아요',
+  NULL,
+  NULL
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+   2,
+  'anthracite coffee - colombia finca el paraiso',
+  '라이트',
+  '자몽, 장미, 복숭아',
+  '꽃향기 도는 산미와 과일향의 조화. 힙스터 감성 뿜뿜',
+  NULL,
+  NULL
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+  3,
+  'la cabra - honduras el puente',
+  '라이트',
+  '청사과, 설탕 시럽, 은은한 향신료',
+  '덴마크 대표 미니멀 감성 로스터리. 맛도 미니멀하게 깔끔',
+  NULL,
+  NULL
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+  4,
+  'ethiopia - cup of excellence',
+  '라이트',
+  '열대과일, 재스민, 청포도',
+  'COE(컵 오브 엑설런스) 수상작은 품질이 확실히 다름. 산미 있는 커피 중 정점.',
+  '₩30,000 ~ ₩70,000',
+  '모모스커피, 챕터원, 180커피 등'
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+  5,
+  'colombia - el paraiso double anaerobic washed',
+  '라이트',
+  '딸기 요구르트, 장미, 열대 과일',
+  '향미가 진짜 미쳤어요. 실험적이고 독보적.',
+  '₩30,000 ~ ₩60,000',
+  'anthracite, fritz, 커피템플 등'
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+  6,
+  '에티오피아 예가체프 (ethiopia yirgacheffe)',
+  NULL,
+  '레몬, 베리류, 복숭아, 꽃향기',
+  '예가체프는 에티오피아의 대표적인 커피 재배 지역으로, 과일향이 두드러지는 커피로 유명합니다.',
+  NULL,
+  NULL
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+  7,
+  '케냐 AA (kenya aa)',
+  NULL,
+  '블랙베리, 자몽, 시트러스',
+  '높은 고도에서 자란 아라비카 커피로 유명하며, 뛰어난 과일향과 풍부한 산미를 자랑합니다.',
+  NULL,
+  NULL
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+  8,
+  '브라질 산토스 (brazil santos)',
+  NULL,
+  '초콜릿, 캐러멜, 견과류',
+  '부드럽고 균형 잡힌 맛이 특징으로, 우유와 잘 어울립니다.',
+  NULL,
+  NULL
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (  
+  9,
+  '콜롬비아 슈프리모 (colombia supremo)',
+  NULL,
+  '사과, 캐러멜, 초콜릿, 약간의 견과류 향',
+  '부드럽고 균형 잡힌 맛으로 유명하며, 우유와 함께 사용할 때 그 맛이 더욱 부각됩니다.',
+  NULL,
+  NULL
+);
+
+INSERT INTO coffee_beans (id, name, roasting, flavor_notes, characteristics, price_range, recommended_roasteries) VALUES (
+  10,
+  '에티오피아 예가체프 워시드 (ethiopia yirgacheffe washed)',
+  NULL,
+  '재스민 꽃향기, 레몬, 베리류, 복숭아',
+  '핸드드립에 가장 잘 맞는 고급 원두 중 하나로, 그 특유의 밝은 산미와 꽃향기, 과일향이 잘 드러납니다.',
+  NULL,
+  NULL
+);
+
+ 
+// 제품 테이블 (시럽·티백·스무디시럽 등) : PRODUCT
+
+-- 시럽 종류 : 1 ~ 9번
+INSERT INTO PRODUCT VALUES (
+  1, '시럽', '매드바닐라', '바닐라 시럽',
+  '부드럽고 달콤한 바닐라 향이 카페라떼·플랫화이트에 잘 어울립니다.',
+  '바닐라 라떼 · 바닐라 아메리카노'
+);
+INSERT INTO PRODUCT VALUES (
+   2, '시럽', '1883', '캐러멜 시럽',
+  '진하고 달콤한 캐러멜 풍미가 커피에 깊이를 더해 줍니다.',
+  '카라멜 마키아토 · 캐러멜 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+  3, '시럽', '1883', '헤이즐넛 시럽',
+  '고소하면서도 달콤한 헤이즐넛 맛이 커피와 우유의 풍미를 강조해 줍니다.',
+  '헤이즐넛 라떼 · 헤이즐넛 아메리카노'
+);
+INSERT INTO PRODUCT VALUES (
+  4, '시럽', '그린트리', '초콜릿 시럽',
+  '진하고 달콤한 초콜릿 맛이 커피와 조화를 이룹니다.',
+  '모카 · 핫초코 · 초콜릿 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+  5, '시럽', '포모나', '민트 시럽',
+  '상쾌하고 청량한 민트 맛이 커피에 더해집니다. 초콜릿과 조합할 때 특히 맛있습니다.',
+  '민트 모카 · 민트 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+  6, '시럽', '1883', '시나몬 시럽',
+  '따뜻하고 스파이시한 시나몬 맛을 더해줍니다. 겨울철에 인기가 많습니다.',
+  '시나몬 라떼 · 시나몬 모카'
+);
+INSERT INTO PRODUCT VALUES (
+  7, '시럽', '그린트리', '패션프루트 시럽',
+  '상큼하고 달콤한 패션프루트 맛이 신선한 풍미를 더해줍니다.',
+  '패션프루트 아이스티'
+);
+INSERT INTO PRODUCT VALUES (
+  8, '시럽', '포모나', '체리 시럽',
+  '체리의 달콤·약간 신맛이 커피에 신선함을 더해줍니다.',
+  '체리 라떼 · 체리 스무디'
+);
+INSERT INTO PRODUCT VALUES (
+  9, '시럽', '런던 브릭스', '망고 시럽',
+  '망고의 달콤하고 풍부한 맛이 커피에 잘 어울립니다.',
+  '망고 라떼 · 망고 스무디'
+);
+
+-- 티백 종류 : 10 ~ 20번
+INSERT INTO PRODUCT VALUES (
+  10, '티백', '타스타티', '루이보스 차',
+  '카페인 프리, 부드럽고 살짝 달콤한 견과류 풍미가 특징입니다.',
+  '루이보스 티 · 루이보스 라떼 · 아이스 루이보스'
+);
+INSERT INTO PRODUCT VALUES (
+  11, '티백', '아일레스', '애플 유자',
+  '사과의 은은한 단맛과 유자의 상큼함이 조화롭습니다.',
+  '애플 유자 티 · 애플 유자 블렌딩'
+);
+INSERT INTO PRODUCT VALUES (
+  12, '티백', '빅토리아', '자스민 티',
+  '자스민 향의 우아한 맛을 제공하는 꽃차입니다.',
+  '자스민 티 · 자스민 아이스티'
+);
+INSERT INTO PRODUCT VALUES (
+  13, '티백', '허브나래', '히비스커스 티',
+  '상큼하고 시큼한 맛이 특징이며, 시원한 음료로 인기 있습니다.',
+  '히비스커스 티 · 히비스커스 아이스티'
+);
+INSERT INTO PRODUCT VALUES (
+  14, '티백', '순수한집', '민트 티',
+  '상쾌하고 청량한 페퍼민트 맛을 제공합니다.',
+  '민트 티 · 민트 아이스티'
+);
+INSERT INTO PRODUCT VALUES (
+  15, '티백', '청년농원', '캐모마일 티',
+  '진정 효과가 있어 편안하게 즐길 수 있는 차입니다.',
+  '캐모마일 티 · 캐모마일 아이스티'
+);
+INSERT INTO PRODUCT VALUES (
+  16, '티백', '티메이드', '로즈 티',
+  '향긋한 장미 향이 우아한 꽃차입니다.',
+  '로즈 티 · 로즈 아이스티'
+);
+INSERT INTO PRODUCT VALUES (
+  17, '티백', '청년농원', '라벤더 티',
+  '꽃향기와 진정 효과가 있는 허브차입니다.',
+  '라벤더 티 · 라벤더 아이스티'
+);
+INSERT INTO PRODUCT VALUES (
+  18, '티백', '정관장', '홍삼차',
+  '홍삼의 쌉싸름한 맛과 건강 효능이 특징입니다.',
+  '홍삼차 · 아이스 홍삼차'
+);
+INSERT INTO PRODUCT VALUES (
+  19, '티백', '오설록', '오설록 녹차',
+  '제주산 고품질 녹차로 깔끔하고 신선한 맛을 제공합니다.',
+  '녹차 · 녹차 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   20, '티백', '이디야', '이디야 유기농 차',
+  '청정 지역 유기농 차로 자연스러운 풍미가 특징입니다.',
+  '유기농 녹차 · 유기농 허브차'
+);
+
+-- 스무디 베이스 : 21 ~ 29번
+INSERT INTO PRODUCT VALUES (
+   21, '스무디 베이스', '포모나', '망고 베이스',
+  '달콤하고 풍부한 망고 맛이 여름철에 인기입니다.',
+  '망고 스무디 · 망고 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   22, '스무디 베이스', '세미후루티', '파인애플 베이스',
+  '상큼하고 달콤한 파인애플 풍미가 특징입니다.',
+  '파인애플 스무디 · 파인애플 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   23, '스무디 베이스', '포모나', '딸기 베이스',
+  '달콤하고 상큼한 딸기 맛이 다양한 음료에 잘 어울립니다.',
+  '딸기 스무디 · 딸기 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   24, '스무디 베이스', '모닌', '블루베리 베이스',
+  '상큼하면서도 달콤한 블루베리 맛을 제공합니다.',
+  '블루베리 스무디 · 블루베리 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   25, '스무디 베이스', '스윗버드', '피치 베이스',
+  '부드럽고 달콤한 복숭아 맛이 특징입니다.',
+  '복숭아 스무디 · 복숭아 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   26, '스무디 베이스', '담터', '바나나 베이스',
+  '부드럽고 달콤한 바나나 맛으로 풍부한 식감을 줍니다.',
+  '바나나 스무디 · 바나나 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   27, '스무디 베이스', '쉘몬', '레몬 베이스',
+  '상큼하고 시원한 레몬 맛이 상쾌함을 제공합니다.',
+  '레몬 스무디 · 레몬 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   28, '스무디 베이스', '쉘몬', '사과 베이스',
+  '신선하고 상큼한 사과 맛을 제공합니다.',
+  '사과 스무디 · 사과 라떼'
+);
+INSERT INTO PRODUCT VALUES (
+   29, '스무디 베이스', 'DIBITA', '패션프루트 베이스',
+  '열대 과일 패션프루트의 상큼하고 달콤한 맛이 특징입니다.',
+  '패션프루트 스무디 · 패션프루트 라떼'
+);
+
+
+// 배송 정보 :  DELIVERY
+INSERT INTO DELIVERY VALUES (
+  1, 101, '롯데택배',
+  TO_DATE('2025-04-19','YYYY-MM-DD'),
+  TO_DATE('2025-04-20','YYYY-MM-DD'),
+  '배송중'
+);
+
+INSERT INTO DELIVERY VALUES (
+  2, 102, 'CJ대한통운',
+  TO_DATE('2025-04-20','YYYY-MM-DD'),
+  TO_DATE('2025-04-22','YYYY-MM-DD'),
+  '배송완료'
+);
+
+INSERT INTO DELIVERY VALUES (
+  3, 103, '한진택배',
+  TO_DATE('2025-04-21','YYYY-MM-DD'),
+  TO_DATE('2025-04-21','YYYY-MM-DD'),
+  '배송완료'
+);
+
+INSERT INTO DELIVERY VALUES (
+  4, 104, '우체국택배',
+  TO_DATE('2025-04-22','YYYY-MM-DD'),
+  TO_DATE('2025-04-23','YYYY-MM-DD'),
+  '배송준비중'
+);
+
+INSERT INTO DELIVERY VALUES (
+  5, 105, '로젠택배',
+  TO_DATE('2025-04-23','YYYY-MM-DD'),
+  TO_DATE('2025-04-24','YYYY-MM-DD'),
+  '배송중'
+);
+
+INSERT INTO DELIVERY VALUES (
+  6, 106, '경동택배',
+  TO_DATE('2025-04-24','YYYY-MM-DD'),
+  TO_DATE('2025-04-25','YYYY-MM-DD'),
+  '배송준비중'
+);
+
+INSERT INTO DELIVERY VALUES (
+  7, 107, '대신택배',
+  TO_DATE('2025-04-25','YYYY-MM-DD'),
+  TO_DATE('2025-04-26','YYYY-MM-DD'),
+  '배송중'
+);
+
+INSERT INTO DELIVERY VALUES (
+  8, 108, '일양택배',
+  TO_DATE('2025-04-26','YYYY-MM-DD'),
+  TO_DATE('2025-04-27','YYYY-MM-DD'),
+  '배송완료'
+);
+
+INSERT INTO DELIVERY VALUES (
+  9, 109, '천일택배',
+  TO_DATE('2025-04-27','YYYY-MM-DD'),
+  TO_DATE('2025-04-28','YYYY-MM-DD'),
+  '배송준비중'
+);
+
+INSERT INTO DELIVERY VALUES (
+  10, 110, 'DHL',
+  TO_DATE('2025-04-28','YYYY-MM-DD'),
+  TO_DATE('2025-04-29','YYYY-MM-DD'),
+  '배송중'
+);
+
+
+COMMIT;
+
+SELECT * FROM customer;
+SELECT * FROM ORDERS;
+SELECT * FROM coffee_beans;
+SELECT * FROM product;
+SELECT * FROM DELIVERY;

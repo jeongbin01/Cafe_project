@@ -1,0 +1,90 @@
+package com.Cafe.model;
+
+import java.sql.Date;
+
+public class Orders {
+	private int orderId;
+    private int customerId;
+    private Integer beanId;
+    private Integer productId;
+    private int quantity;
+    private Date orderDate;
+    private String status;
+	
+    // 생성자
+    public Orders(int orderId, int customerId, Integer beanId, Integer productId, int quantity, Date orderDate,
+			String status) {
+		super();
+		this.orderId = orderId;
+		this.customerId = customerId;
+		this.beanId = beanId;
+		this.productId = productId;
+		this.quantity = quantity;
+		this.orderDate = orderDate;
+		this.status = status;
+	}
+    
+    // setter, toString
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public int getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(int customerId) {
+		this.customerId = customerId;
+	}
+
+	public Integer getBeanId() {
+		return beanId;
+	}
+
+	public void setBeanId(Integer beanId) {
+		this.beanId = beanId;
+	}
+
+	public Integer getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Integer productId) {
+		this.productId = productId;
+	}
+
+	public int getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(int quantity) {
+		this.quantity = quantity;
+	}
+
+	public Date getOrderDate() {
+		return orderDate;
+	}
+
+	public void setOrderDate(Date orderDate) {
+		this.orderDate = orderDate;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	@Override
+	public String toString() {
+		return "ORDERS [orderId=" + orderId + ", customerId=" + customerId + ", beanId=" + beanId + ", productId="
+				+ productId + ", quantity=" + quantity + ", orderDate=" + orderDate + ", status=" + status + "]";
+	}
+	
+}

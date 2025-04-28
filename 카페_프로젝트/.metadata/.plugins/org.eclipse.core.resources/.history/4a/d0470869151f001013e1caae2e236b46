@@ -1,0 +1,156 @@
+package com.Cafe.Controller;
+
+import java.sql.Date;
+import java.util.List;
+
+import com.Cafe.dao.CoffeeBeansDAO;
+import com.Cafe.dao.CustomerDAO;
+import com.Cafe.dao.OrdersDAO;
+import com.Cafe.dao.ProductDAO;
+import com.Cafe.model.COFFEE_BEANS;
+import com.Cafe.model.CUSTOMER.Customer;
+import com.Cafe.model.ORDERS;
+import com.Cafe.model.PRODUCT;
+
+public class OrdersController {
+	private OrdersDAO ordersDAO;
+	private CustomerDAO customerDAO;
+	private CoffeeBeansDAO coffeeBeansDAO;
+	private ProductDAO productDAO;
+
+	public OrdersController() {
+		this.ordersDAO = new OrdersDAO();
+		this.customerDAO = new CustomerDAO();
+		this.coffeeBeansDAO = new CoffeeBeansDAO();
+		this.productDAO = new ProductDAO();
+	}
+
+	public List<ORDERS> getAllOrders() {
+		return ordersDAO.getAllOrders();
+	}
+
+	public ORDERS getOrderById(int id) {
+		return ordersDAO.getOrderById(id);
+	}
+
+	public List<ORDERS> getOrdersByCustomerId(int customerId) {
+		return ordersDAO.getOrdersByCustomerId(customerId);
+	}
+
+	public boolean addOrder(ORDERS order) {
+		// 유효성 검사 수행
+		if (order.getQuantity() <= 0) {
+			return false;
+		}
+
+		// 주문 상태 초기화
+		if (order.getStatus() == null) {
+			order.setStatus("접수");
+		}
+
+		// 주문일 설정
+		if (order.getOrderDate() == null) {
+			order.setOrderDate(new Date(System.currentTimeMillis()));
+		}
+
+		// 고객이 실제로 존재하는지 확인
+		Customer customer = customerDAO.getCustomerById(order.getCustomerId());
+		if (customer == null) {
+			return false;
+		}
+
+		// 원두 또는 제품 중 하나는 반드시 주문해야 함
+		if (order.getBeanId() == null && order.getProductId() == null) {
+			return false;
+		}
+
+		// 원두가 실제로 존재하는지 확인
+		if (order.getBeanId() != null) {
+			COFFEE_BEANS bean = coffeeBeansDAO.getCoffeeBeanById(order.getBeanId());
+			if (bean == null) {
+				return false;
+			}
+		}
+
+		// 제품이 실제로 존재하는지 확인
+		if (order.getProductId() != null) {
+			PRODUCT product = productDAO.getProductById(order.getProductId());
+			if (product == null) {
+				return false;
+			}
+		}
+
+		// 이미 존재하는 ID인지 확인
+		if (ordersDAO.getOrderById(order.getOrderId()) != null) {
+			return false;
+		}
+
+		return ordersDAO.insertOrder(order);
+	}
+
+	public boolean updateOrder(ORDERS order) {
+		// 유효성 검사 수행
+		if (order.getQuantity() <= 0) {
+			return false;
+		}
+
+		// 존재하는 ID인지 확인
+		if (ordersDAO.getOrderById(order.getOrderId()) == null) {
+			return false;
+		}
+
+		// 원두 또는 제품 중 하나는 반드시 주문해야 함
+		if (order.getBeanId() == null && order.getProductId() == null) {
+			return false;
+		}
+
+		return ordersDAO.updateOrder(order);
+	}
+
+	public boolean deleteOrder(int id) {
+		// 존재하는 ID인지 확인
+		if (ordersDAO.getOrderById(id) == null) {
+			return false;
+		}
+
+		return ordersDAO.deleteOrder(id);
+	}
+
+	// 주문 상태 업데이트
+	public boolean updateOrderStatus(int orderId, String status) {
+		// 존재하는 ID인지 확인
+		if (ordersDAO.getOrderById(orderId) == null) {
+			return false;
+		}
+
+		return ordersDAO.updateOrderStatus(orderId, status);
+	}
+
+	// 오늘의 주문 조회
+	public List<ORDERS> getTodayOrders() {
+		List<ORDERS> allOrders = ordersDAO.getAllOrders();
+		Date today = new Date(System.currentTimeMillis());
+
+		return allOrders.stream().filter(order -> {
+			if (order.getOrderDate() == null) {
+				return false;
+			}
+
+			return order.getOrderDate().toString().equals(today.toString());
+		}).toList();
+	}
+
+	// 특정 기간 주문 조회
+	public List<ORDERS> getOrdersByPeriod(Date startDate, Date endDate) {
+		List<ORDERS> allOrders = ordersDAO.getAllOrders();
+
+		return allOrders.stream().filter(order -> {
+			if (order.getOrderDate() == null) {
+				return false;
+			}
+
+			return !order.getOrderDate().before(startDate) && !order.getOrderDate().after(endDate);
+		}).toList();
+	}
+
+}

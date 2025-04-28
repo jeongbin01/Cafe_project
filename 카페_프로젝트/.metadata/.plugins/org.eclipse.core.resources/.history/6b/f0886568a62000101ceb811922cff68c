@@ -1,0 +1,84 @@
+package com.Cafe.Controller;
+
+import java.util.List;
+import java.util.Scanner;
+import com.Cafe.dao.CoffeeBeansDAO;
+import com.Cafe.model.Coffee_beans;
+
+public class CoffeeBeansController {
+
+	private final CoffeeBeansDAO dao = new CoffeeBeansDAO();
+	private final Scanner sc = new Scanner(System.in);
+
+	public void run() {
+		while (true) {
+			System.out.println("\n=== 커피 원두 관리 ===");
+			System.out.println("1. 전체 조회 | 2. 등록 | 3. 수정 | 4. 삭제 | 0. 뒤로가기");
+			System.out.print("선택: ");
+			int menu = sc.nextInt();
+			sc.nextLine();
+
+			switch (menu) {
+			case 1 -> showAllCoffeeBeans();
+			case 2 -> addCoffeeBean();
+			case 3 -> updateCoffeeBean();
+			case 4 -> deleteCoffeeBean();
+			case 0 -> {
+				return;
+			}
+			default -> System.out.println("잘못된 선택입니다.");
+			}
+		}
+	}
+
+	// 원두 조회
+	private void showAllCoffeeBeans() {
+		List<Coffee_beans> beans = dao.getAllCoffeeBeans();
+		for (Coffee_beans bean : beans) {
+			System.out.println(bean);
+		}
+	}
+
+	// 원두 등록
+	private void addCoffeeBean() {
+		System.out.print("원두 ID: ");
+		int id = sc.nextInt();
+		sc.nextLine();
+		System.out.print("원두 이름: ");
+		String name = sc.nextLine();
+		System.out.print("로스팅: ");
+		String roasting = sc.nextLine();
+		System.out.print("맛 노트: ");
+		String flavorNotes = sc.nextLine();
+		System.out.print("특징: ");
+		String characteristics = sc.nextLine();
+		System.out.print("가격 범위: ");
+		String priceRange = sc.nextLine();
+		System.out.print("추천 로스터리: ");
+		String recommendedRoasteries = sc.nextLine();
+
+		Coffee_beans beans = new Coffee_beans(id, name, roasting, flavorNotes, characteristics, priceRange,
+				recommendedRoasteries);
+		dao.insertCoffeeBean(beans);
+	}
+
+	// 원두 수정
+	private void updateCoffeeBean() {
+		System.out.print("수정할 원두 ID: ");
+		int id = sc.nextInt();
+		sc.nextLine();
+		System.out.print("새 원두 이름: ");
+		String name = sc.nextLine();
+		System.out.print("새 로스팅: ");
+		String roasting = sc.nextLine();
+
+		Coffee_beans beans = new Coffee_beans(id, name, roasting, null, null, null, null);
+		dao.updateCoffeeBean(beans);
+	}
+
+	private void deleteCoffeeBean() {
+		System.out.print("삭제할 원두 ID: ");
+		int id = sc.nextInt();
+		dao.deleteCoffeeBean(id);
+	}
+}

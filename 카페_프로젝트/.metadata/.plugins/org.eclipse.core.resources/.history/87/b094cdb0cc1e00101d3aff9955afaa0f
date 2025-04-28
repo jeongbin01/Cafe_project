@@ -1,0 +1,236 @@
+package com.Cafe.app;
+
+import java.sql.Date;
+import java.util.List;
+import java.util.Scanner;
+
+
+public class CafeApp {
+    private Scanner scanner = new Scanner(System.in);
+    private CustomerController customerController = new CustomerController();
+    private CoffeeBeansController beansController = new CoffeeBeansController();
+    private ProductController productController = new ProductController();
+    private OrdersController ordersController = new OrdersController();
+    private DeliveryController deliveryController = new DeliveryController();
+
+    public static void main(String[] args) {
+        new CafeApp().run();
+    }
+
+    public void run() {
+        boolean running = true;
+        while (running) {
+            printMainMenu();
+            int choice = readInt("선택: ");
+            switch (choice) {
+                case 1: customersMenu(); break;
+                case 2: productsMenu(); break;
+                case 3: beansMenu(); break;
+                case 4: ordersMenu(); break;
+                case 5: deliveryMenu(); break;
+                case 0:
+                    running = false;
+                    System.out.println("프로그램을 종료합니다.");
+                    break;
+                default:
+                    System.out.println("잘못된 선택입니다. 다시 시도해주세요.");
+            }
+        }
+        scanner.close();
+    }
+
+    private void printMainMenu() {
+        System.out.println("\n=== 카페 관리 시스템 ===");
+        System.out.println("1. 고객 관리");
+        System.out.println("2. 제품 관리");
+        System.out.println("3. 원두 관리");
+        System.out.println("4. 주문 관리");
+        System.out.println("5. 배송 관리");
+        System.out.println("0. 종료");
+    }
+
+    private void customersMenu() {
+        System.out.println("\n--- 고객 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 수정");
+        System.out.println("4. 삭제");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                List<Customer> customers = customerController.getAllCustomers();
+                customers.forEach(System.out::println);
+                break;
+            case 2:
+                int cid = readInt("고객 ID: ");
+                String cname = readString("이름: ");
+                String phone = readString("전화번호: ");
+                String email = readString("이메일: ");
+                String address = readString("주소: ");
+                String signup = readString("가입일 (YYYY-MM-DD): ");
+                customerController.addCustomer(new Customer(cid, cname, phone, email, address, signup));
+                System.out.println("고객이 추가되었습니다.");
+                break;
+            case 3:
+                int upId = readInt("수정할 고객 ID: ");
+                String upName = readString("새 이름: ");
+                String upPhone = readString("새 전화번호: ");
+                String upEmail = readString("새 이메일: ");
+                String upAddress = readString("새 주소: ");
+                String upSignup = readString("새 가입일 (YYYY-MM-DD): ");
+                customerController.updateCustomer(new Customer(upId, upName, upPhone, upEmail, upAddress, upSignup));
+                System.out.println("고객 정보가 수정되었습니다.");
+                break;
+            case 4:
+                int delId = readInt("삭제할 고객 ID: ");
+                customerController.deleteCustomer(delId);
+                System.out.println("고객이 삭제되었습니다.");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }
+
+    private void productsMenu() {
+        System.out.println("\n--- 제품 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 수정");
+        System.out.println("4. 삭제");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                List<PRODUCT> products = productController.getAllProducts();
+                products.forEach(System.out::println);
+                break;
+            case 2:
+                int pid = readInt("제품 ID: ");
+                String ptype = readString("제품 종류: ");
+                String company = readString("제조사: ");
+                String pname = readString("제품명: ");
+                String desc = readString("설명: ");
+                String mainDrinks = readString("주요 음료: ");
+                productController.addProduct(new PRODUCT(pid, ptype, company, pname, desc, mainDrinks));
+                System.out.println("제품이 추가되었습니다.");
+                break;
+            case 3:
+                int upPid = readInt("수정할 제품 ID: ");
+                String upType = readString("새 제품 종류: ");
+                String upComp = readString("새 제조사: ");
+                String upPname = readString("새 제품명: ");
+                String upDesc = readString("새 설명: ");
+                String upMain = readString("새 주요 음료: ");
+                productController.updateProduct(new PRODUCT(upPid, upType, upComp, upPname, upDesc, upMain));
+                System.out.println("제품 정보가 수정되었습니다.");
+                break;
+            case 4:
+                int delPid = readInt("삭제할 제품 ID: ");
+                productController.deleteProduct(delPid);
+                System.out.println("제품이 삭제되었습니다.");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }
+
+    private void beansMenu() {
+        System.out.println("\n--- 원두 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 수정");
+        System.out.println("4. 삭제");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                List<COFFEE_BEANS> beans = beansController.getAllCoffeeBeans();
+                beans.forEach(System.out::println);
+                break;
+            case 2:
+                int bid = readInt("원두 ID: ");
+                String bname = readString("이름: ");
+                String roast = readString("로스팅 정도: ");
+                String notes = readString("맛 노트: ");
+                String chars = readString("특징: ");
+                String prange = readString("가격대: ");
+                String recs = readString("추천 로스터리: ");
+                beansController.addBean(new COFFEE_BEANS(bid, bname, roast, notes, chars, prange, recs));
+                System.out.println("원두가 추가되었습니다.");
+                break;
+            case 3:
+                int upBid = readInt("수정할 원두 ID: ");
+                String upBname = readString("새 이름: ");
+                String upRoast = readString("새 로스팅 정도: ");
+                String upNotes = readString("새 맛 노트: ");
+                String upChars = readString("새 특징: ");
+                String upPrange = readString("새 가격대: ");
+                String upRecs = readString("새 추천 로스터리: ");
+                beansController.updateBean(new COFFEE_BEANS(upBid, upBname, upRoast, upNotes, upChars, upPrange, upRecs));
+                System.out.println("원두 정보가 수정되었습니다.");
+                break;
+            case 4:
+                int delBid = readInt("삭제할 원두 ID: ");
+                beansController.deleteBean(delBid);
+                System.out.println("원두가 삭제되었습니다.");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }
+
+    private void ordersMenu() {
+        System.out.println("\n--- 주문 관리 ---");
+        System.out.println("1. 목록 보기");
+        System.out.println("2. 추가");
+        System.out.println("3. 상태 수정");
+        System.out.println("4. 삭제");
+        System.out.println("0. 뒤로가기");
+        int choice = readInt("선택: ");
+        switch (choice) {
+            case 1:
+                List<ORDERS> orders = ordersController.getAllOrders();
+                orders.forEach(System.out::println);
+                break;
+            case 2:
+                int oid = readInt("주문 ID: ");
+                int ocust = readInt("고객 ID: ");
+                System.out.println("1. 원두 주문  2. 제품 주문");
+                int type = readInt("선택: ");
+                Integer obean = null;
+                Integer oprod = null;
+                if (type == 1) {
+                    obean = readInt("원두 ID: ");
+                } else {
+                    oprod = readInt("제품 ID: ");
+                }
+                int qty = readInt("수량: ");
+                Date od = readDate("주문일 (YYYY-MM-DD): ");
+                String status = readString("상태: ");
+                ordersController.addOrder(new ORDERS(oid, ocust, obean, oprod, qty, od, status));
+                System.out.println("주문이 추가되었습니다.");
+                break;
+            case 3:
+                int eoid = readInt("수정할 주문 ID: ");
+                String newStatus = readString("새 상태: ");
+                ordersController.updateOrderStatus(eoid, newStatus);
+                System.out.println("주문 상태가 수정되었습니다.");
+                break;
+            case 4:
+                int delOid = readInt("삭제할 주문 ID: ");
+                ordersController.deleteOrder(delOid);
+                System.out.println("주문이 삭제되었습니다.");
+                break;
+            case 0:
+                return;
+            default:
+                System.out.println("잘못된 선택입니다.");
+        }
+    }

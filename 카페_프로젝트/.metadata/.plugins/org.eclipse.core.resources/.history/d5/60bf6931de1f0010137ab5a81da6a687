@@ -1,0 +1,82 @@
+package com.Cafe.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import com.Cafe.model.Orders;
+
+public class OrdersDAO {
+	private final String url = "jdbc:oracle:thin:@localhost:10521:xe";
+	private final String user = "C##Cafe_Website";
+	private final String password = "1234";
+
+	private Connection getConnection() throws SQLException {
+		return DriverManager.getConnection(url, user, password);
+	}
+
+	// 주문 등록
+	public boolean insertOrder(Orders order) {
+		String sql = "INSERT INTO ORDERS (order_id, customer_id, bean_id, product_id, quantity, order_date, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, order.getOrderId());
+			pstmt.setInt(2, order.getCustomerId());
+			pstmt.setInt(3, order.getBeanId() != null ? order.getBeanId() : null);
+			pstmt.setInt(4, order.getProductId() != null ? order.getProductId() : null);
+			pstmt.setInt(5, order.getQuantity());
+			pstmt.setDate(6, order.getOrderDate());
+			pstmt.setString(7, order.getStatus());
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	// 모든 주문 조회
+	public List<Orders> getAllOrders() {
+		List<Orders> ordersList = new ArrayList<>();
+		String sql = "SELECT * FROM ORDERS";
+		try (Connection conn = getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+			while (rs.next()) {
+				Orders order = new Orders(rs.getInt("order_id"), rs.getInt("customer_id"), rs.getInt("bean_id"),
+						rs.getInt("product_id"), rs.getInt("quantity"), rs.getDate("order_date"),
+						rs.getString("status"));
+				ordersList.add(order);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return ordersList;
+	}
+
+	// 주문 상태 업데이트
+	public boolean updateOrderStatus(int orderId, String status) {
+		String sql = "UPDATE ORDERS SET status = ? WHERE order_id = ?";
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setString(1, status);
+			pstmt.setInt(2, orderId);
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	// 주문 삭제
+	public boolean deleteOrder(int orderId) {
+		String sql = "DELETE FROM ORDERS WHERE order_id = ?";
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+			pstmt.setInt(1, orderId);
+			return pstmt.executeUpdate() > 0;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+}

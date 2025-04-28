@@ -1,0 +1,146 @@
+package com.Cafe.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.Cafe.model.PRODUCT;
+
+public class ProductDAO {
+	private final String url = "jdbc:oracle:thin:@localhost:10521:xe";
+	private final String user = "C##Cafe_Website";
+	private final String password = "1234";
+
+	// 올바른 DB 연결 메서드
+	private Connection getConnection() throws SQLException {
+		return DriverManager.getConnection(url, user, password);
+	}
+
+	// 모든 제품 정보 조회
+	public List<PRODUCT> getAllProducts() {
+		List<PRODUCT> productList = new ArrayList<>();
+		String sql = "SELECT * FROM PRODUCT";
+
+		try (Connection conn = getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+
+			while (rs.next()) {
+				PRODUCT product = new PRODUCT(rs.getInt("product_id"), rs.getString("product_type"),
+						rs.getString("company"), rs.getString("product_name"), rs.getString("description"),
+						rs.getString("main_drinks"));
+				productList.add(product);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return productList;
+	}
+
+	// ID로 특정 제품 정보 조회
+	public PRODUCT getProductById(int productId) {
+		String sql = "SELECT * FROM PRODUCT WHERE product_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, productId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					return new PRODUCT(rs.getInt("product_id"), rs.getString("product_type"), rs.getString("company"),
+							rs.getString("product_name"), rs.getString("description"), rs.getString("main_drinks"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	// 제품 타입으로 제품 정보 조회
+	public List<PRODUCT> getProductsByType(String productType) {
+		List<PRODUCT> productList = new ArrayList<>();
+		String sql = "SELECT * FROM PRODUCT WHERE product_type = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, productType);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				while (rs.next()) {
+					PRODUCT product = new PRODUCT(rs.getInt("product_id"), rs.getString("product_type"),
+							rs.getString("company"), rs.getString("product_name"), rs.getString("description"),
+							rs.getString("main_drinks"));
+					productList.add(product);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return productList;
+	}
+
+	// 새 제품 등록
+	public boolean insertProduct(PRODUCT product) {
+		String sql = "INSERT INTO PRODUCT "
+				+ "(product_id, product_type, company, product_name, description, main_drinks) "
+				+ "VALUES (?, ?, ?, ?, ?, ?)";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, product.getProductId());
+			pstmt.setString(2, product.getProductType());
+			pstmt.setString(3, product.getCompany());
+			pstmt.setString(4, product.getProductName());
+			pstmt.setString(5, product.getDescription());
+			pstmt.setString(6, product.getMainDrinks());
+			return pstmt.executeUpdate() > 0;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 제품 정보 수정
+	public boolean updateProduct(PRODUCT product) {
+		String sql = "UPDATE PRODUCT SET "
+				+ "product_type = ?, company = ?, product_name = ?, description = ?, main_drinks = ? "
+				+ "WHERE product_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, product.getProductType());
+			pstmt.setString(2, product.getCompany());
+			pstmt.setString(3, product.getProductName());
+			pstmt.setString(4, product.getDescription());
+			pstmt.setString(5, product.getMainDrinks());
+			pstmt.setInt(6, product.getProductId());
+			return pstmt.executeUpdate() > 0;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 제품 삭제
+	public boolean deleteProduct(int productId) {
+		String sql = "DELETE FROM PRODUCT WHERE product_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, productId);
+			return pstmt.executeUpdate() > 0;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}

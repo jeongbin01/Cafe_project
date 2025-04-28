@@ -1,0 +1,81 @@
+package com.Cafe.model;
+
+import java.sql.Date;
+
+public class Delvery {
+    private int deliveryId;
+    private int orderId;
+    private String courierCompany;
+    private Date expectedDate;
+    private Date actualDate;
+    private String deliveryStatus;
+    
+    // 생성자
+	public Delvery(int deliveryId, int orderId, String courierCompany, Date expectedDate, Date actualDate,
+			String deliveryStatus) {
+		super();
+		this.deliveryId = deliveryId;
+		this.orderId = orderId;
+		this.courierCompany = courierCompany;
+		this.expectedDate = expectedDate;
+		this.actualDate = actualDate;
+		this.deliveryStatus = deliveryStatus;
+	}
+
+	// getter, setter, toString
+	public int getDeliveryId() {
+		return deliveryId;
+	}
+
+	public void setDeliveryId(int deliveryId) {
+		this.deliveryId = deliveryId;
+	}
+
+	public int getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(int orderId) {
+		this.orderId = orderId;
+	}
+
+	public String getCourierCompany() {
+		return courierCompany;
+	}
+
+	public void setCourierCompany(String courierCompany) {
+		this.courierCompany = courierCompany;
+	}
+
+	public Date getExpectedDate() {
+		return expectedDate;
+	}
+
+	public void setExpectedDate(Date expectedDate) {
+		this.expectedDate = expectedDate;
+	}
+
+	public Date getActualDate() {
+		return actualDate;
+	}
+
+	public void setActualDate(Date actualDate) {
+		this.actualDate = actualDate;
+	}
+
+	public String getDeliveryStatus() {
+		return deliveryStatus;
+	}
+
+	public void setDeliveryStatus(String deliveryStatus) {
+		this.deliveryStatus = deliveryStatus;
+	}
+
+	@Override
+	public String toString() {
+		return "DELIVERY [deliveryId=" + deliveryId + ", orderId=" + orderId + ", courierCompany=" + courierCompany
+				+ ", expectedDate=" + expectedDate + ", actualDate=" + actualDate + ", deliveryStatus=" + deliveryStatus
+				+ "]";
+	}
+    	
+}

@@ -1,0 +1,160 @@
+package com.Cafe.dao;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.Cafe.model.DELIVERY; // DELIVERY 모델 클래스
+
+public class DeliveryDAO {
+	private final String url = "jdbc:oracle:thin:@localhost:10521:xe";
+	private final String user = "C##Cafe_Website";
+	private final String password = "1234";
+
+	// 올바른 DB 연결 메서드
+	private Connection getConnection() throws SQLException {
+		return DriverManager.getConnection(url, user, password);
+	}
+
+	// 모든 배송 정보 조회
+	public List<DELIVERY> getAllDeliveries() {
+		List<DELIVERY> deliveryList = new ArrayList<>();
+		String sql = "SELECT * FROM DELIVERY";
+
+		try (Connection conn = getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery()) {
+
+			while (rs.next()) {
+				DELIVERY delivery = new DELIVERY(rs.getInt("delivery_id"), rs.getInt("order_id"),
+						rs.getString("courier_company"), rs.getDate("expected_date"), rs.getDate("actual_date"),
+						rs.getString("delivery_status"));
+				deliveryList.add(delivery);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return deliveryList;
+	}
+
+	// ID로 특정 배송 정보 조회
+	public DELIVERY getDeliveryById(int deliveryId) {
+		String sql = "SELECT * FROM DELIVERY WHERE delivery_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, deliveryId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					return new DELIVERY(rs.getInt("delivery_id"), rs.getInt("order_id"),
+							rs.getString("courier_company"), rs.getDate("expected_date"), rs.getDate("actual_date"),
+							rs.getString("delivery_status"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	// 주문 ID로 배송 정보 조회
+	public DELIVERY getDeliveryByOrderId(int orderId) {
+		String sql = "SELECT * FROM DELIVERY WHERE order_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, orderId);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (rs.next()) {
+					return new DELIVERY(rs.getInt("delivery_id"), rs.getInt("order_id"),
+							rs.getString("courier_company"), rs.getDate("expected_date"), rs.getDate("actual_date"),
+							rs.getString("delivery_status"));
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	// 새 배송 정보 등록
+	public boolean insertDelivery(DELIVERY delivery) {
+		String sql = "INSERT INTO DELIVERY "
+				+ "(delivery_id, order_id, courier_company, expected_date, actual_date, delivery_status) "
+				+ "VALUES (?, ?, ?, ?, ?, ?)";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, delivery.getDeliveryId());
+			pstmt.setInt(2, delivery.getOrderId());
+			pstmt.setString(3, delivery.getCourierCompany());
+			pstmt.setDate(4, delivery.getExpectedDate());
+			pstmt.setDate(5, delivery.getActualDate());
+			pstmt.setString(6, delivery.getDeliveryStatus());
+			return pstmt.executeUpdate() > 0;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 배송 정보 수정
+	public boolean updateDelivery(DELIVERY delivery) {
+		String sql = "UPDATE DELIVERY SET "
+				+ "courier_company = ?, expected_date = ?, actual_date = ?, delivery_status = ? "
+				+ "WHERE delivery_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, delivery.getCourierCompany());
+			pstmt.setDate(2, delivery.getExpectedDate());
+			pstmt.setDate(3, delivery.getActualDate());
+			pstmt.setString(4, delivery.getDeliveryStatus());
+			pstmt.setInt(5, delivery.getDeliveryId());
+			return pstmt.executeUpdate() > 0;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 배송 상태만 업데이트
+	public boolean updateDeliveryStatus(int deliveryId, String status) {
+		String sql = "UPDATE DELIVERY SET delivery_status = ? WHERE delivery_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setString(1, status);
+			pstmt.setInt(2, deliveryId);
+			return pstmt.executeUpdate() > 0;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	// 배송 삭제
+	public boolean deleteDelivery(int deliveryId) {
+		String sql = "DELETE FROM DELIVERY WHERE delivery_id = ?";
+
+		try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+			pstmt.setInt(1, deliveryId);
+			return pstmt.executeUpdate() > 0;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+}
